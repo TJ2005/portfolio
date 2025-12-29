@@ -1,0 +1,8 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* Prevent horizontal layout shift when vertical scrollbar toggles */
+:root {
+	scrollbar-gutter: stable both-edges;
+}
