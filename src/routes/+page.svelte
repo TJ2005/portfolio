@@ -9,11 +9,17 @@
 
     setTimeout(()=> {
         hideLoader();
-    }, 30500);
+    }, 5000);
 </script>
+
 
 {#if showLoader}
     <div transition:fade={{duration:300, easing:cubicOut}}>
         <LoadingAnimator on:animationComplete={hideLoader} />
     </div>
+    {:else}
+    <div>
+        
+    </div>
 {/if}
+

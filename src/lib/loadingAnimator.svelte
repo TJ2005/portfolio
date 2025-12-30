@@ -1,21 +1,40 @@
 <div class="w-full">
   <main class="min-h-screen flex flex-col items-center justify-center px-4">
     <canvas id="halftoneCanvas" class="max-w-full h-auto"></canvas>
-    <p class="mondwest text-center mt-8">Loading...</p>
+    {#key index}
+	    <h1 class="text-[var(--color-blue)] mondwest text-center -mt-8" transition:slide>{greetings[index]}</h1>
+    {/key}
   </main>
 </div>
 
 <script>
-  import { onMount } from 'svelte';
+  import { onMount, onDestroy } from 'svelte';
+	import { slide } from 'svelte/transition';
+	
+	let greetings = ['Loading...', 'Please Wait...'];
+	let index = 0;
+	let roller;
+	
+	onMount(() => {
+		roller = setInterval(() => {
+			if (index === greetings.length - 1) index = 0;
+			else index++;
+		}, 1250);
+	});
+	
+	onDestroy(() => {
+		clearInterval(roller);
+	});
   const defaults = {
-    gridSize: 4,
+    gridSize: 3,
     brightness: 20,
     contrast: 0,
     gamma: 1.0,
     smoothing: 0,
     ditherType: "None",
-    dotColor: '#000000',
-    backgroundColor: '#FFFFFF',
+    dotColor: '#1900FF',
+    backgroundColor: '#FFFFFF',   
+
     multicolor: false,
   };
 
