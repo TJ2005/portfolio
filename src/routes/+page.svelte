@@ -1,5 +1,6 @@
 <script>
     import LoadingAnimator from "$lib/loadingAnimator.svelte";
+    import LandingIndexAnim from "$lib/landingIndexAnim.svelte";
     import { fade } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
     let showLoader = true;
@@ -19,7 +20,7 @@
     </div>
     {:else}
     <div>
-        
+        <LandingIndexAnim />
     </div>
 {/if}
 
