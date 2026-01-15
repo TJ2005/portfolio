@@ -1,8 +1,19 @@
+
+
+@import url('https://fonts.googleapis.com/css2?family=Zalando+Sans:ital,wdth,wght@0,75..125,200..900;1,75..125,200..900&display=swap');
+
 :root{
     --color-blue:#1900FF;
     --color-white:#FFFFFF;
     --color-black:#000000;
     --color-mutedgray:#4C4C4C;
+}
+
+
+/* Zalando Font Variable */
+.zalando {
+    font-family: 'Zalando Sans', sans-serif;
+    font-weight: 200;
 }
 
 @font-face {

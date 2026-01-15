@@ -3,9 +3,14 @@
     import LandingIndexAnim from "$lib/landingIndexAnim.svelte";
     import { fade } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
-    let showLoader = true;
-    function hideLoader(){
+    let showLoader = $state(true);
+    let startMainAnimation = $state(false);
+
+        function hideLoader(){
         showLoader = false;
+        setTimeout(()=>{
+            startMainAnimation = true;
+        },300);
     }
 
     setTimeout(()=> {
@@ -20,7 +25,7 @@
     </div>
     {:else}
     <div>
-        <LandingIndexAnim />
+        <LandingIndexAnim startAnimation={startMainAnimation}/>
     </div>
 {/if}
 
