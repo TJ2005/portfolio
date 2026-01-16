@@ -9,6 +9,9 @@
     --color-mutedgray:#4C4C4C;
 }
 
+body{
+    width: 100vw;
+}
 
 /* Zalando Font Variable */
 .zalando {

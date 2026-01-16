@@ -41,7 +41,7 @@
                     variableTextWeight.set(200)
                 ]);
                 await Promise.all([
-                    blurAmount.set(4),
+                    blurAmount.set(20),
                     variableTextWeight.set(600)
                 ]);;
             })();
@@ -78,13 +78,13 @@
 </script>
 
 <div 
-    class="flex items-center justify-center min-h-screen transition-colors duration-300" 
+    class="flex items-center justify-center min-h-screen transition-colors" 
     in:fade={{ duration: 850 }}
     class:text-white={activeSection === ''}
     class:text-[var(--color-blue)]={activeSection !== ''}
     class:opacity-50={activeSection !== ''}
 >
-    <div class="bg-[var(--color-blue)]/30 min-w-[20em] px-[1.125em] py-[0.875em]" in:fly={{y:40,duration:1000}} style="backdrop-filter:blur({blurAmount.current}px);">
+    <div class="bg-[var(--color-blue)]/30 min-w-[20em] px-[1.125em] py-[0.875em]" in:fly={{y:-40,duration:1000}} style="backdrop-filter:blur({blurAmount.current}px);">
         <div class="zalando text-[2em]" in:fade={{ duration: 700 }}
             style="line-height:1em; letter-spacing:-0.08em;
                 font-weight:{variableTextWeight.current};"
@@ -100,7 +100,7 @@
                     {#each menuItems as item}
                         <li class="w-full">
                             <a 
-                                class="zalando text-[1em] w-full flex justify-between items-center transition-opacity duration-300"
+                                class="zalando text-[1em] w-full flex justify-between items-center transition-opacity"
                                 href="#{item.id}"
                                 class:opacity-100={activeSection === '' || activeSection === item.id}
                                 class:opacity-50={activeSection !== '' && activeSection !== item.id}
