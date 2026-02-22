@@ -53,10 +53,10 @@
 
 <style>
     .experience-card {
-        width: 100%;
-        max-width: 90vw;
-        margin: 0 auto;
-        padding: 2rem;
+        width: 75vw;
+        max-width: 75vw;
+        margin: 0;
+        padding: 0;
     }
     
     .header-section {
@@ -102,7 +102,7 @@
     .responsibilities-label {
         font-size: 28px;
         line-height: 1.3;
-        color: var(--color-mutedgray);
+        color: var(--color-blue);
     }
     
     .responsibilities-list {

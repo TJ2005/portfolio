@@ -145,29 +145,18 @@
 
     // Update font weights based on active section and hover
     $effect(() => {
-        // Explicitly read reactive values to track them
         const slide = currentSlide;
         const section = activeSection;
         const hovered = hoveredItem;
         
-        console.log('Weight effect triggered:', { slide, section, hovered });
-        
         menuItems.forEach(item => {
             if (hovered === item.id) {
-                // Hovered state: weight 600
-                console.log(`${item.id}: hover -> 600`);
                 itemTweeners[item.id].animateTo(MENU_WEIGHT_HOVER);
             } else if (slide === 0) {
-                // Slide 0 (Home): All items weight 300
-                console.log(`${item.id}: home -> 300`);
                 itemTweeners[item.id].animateTo(MENU_WEIGHT_DEFAULT);
             } else if (item.id === section) {
-                // Slide 1+: Active item weight 600
-                console.log(`${item.id}: active (matches ${section}) -> 600`);
                 itemTweeners[item.id].animateTo(MENU_WEIGHT_ACTIVE);
             } else {
-                // Slide 1+: Inactive items weight 300
-                console.log(`${item.id}: inactive -> 300`);
                 itemTweeners[item.id].animateTo(MENU_WEIGHT_DEFAULT);
             }
         });
