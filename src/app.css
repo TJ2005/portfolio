@@ -11,6 +11,17 @@
 
 body{
     width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Hide scrollbar globally */
+html {
+    overflow-x: hidden;
+    scrollbar-width: none; /* Firefox */
+}
+
+html::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, Edge */
 }
 
 /* Zalando Font Variable */
