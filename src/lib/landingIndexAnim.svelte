@@ -229,7 +229,12 @@
         transition: left 0.8s cubic-bezier(0.65, 0, 0.35, 1), bottom 0.8s cubic-bezier(0.65, 0, 0.35, 1), top 0.8s cubic-bezier(0.65, 0, 0.35, 1), transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
     "
 >
-    <div class="min-w-[20em] py-[0.875em]" class:px-[1.125em]={currentSlide === 0} in:fly={{y:-40,duration:1000}} style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease;">
+    <!-- Gradient blur backdrop -->{#if currentSlide === 8}
+        <div class="blur-backdrop"></div>
+        <div class="white-glow"></div>
+    {/if}
+    
+    <div class="min-w-[20em] py-[0.875em]" class:px-[1.125em]={currentSlide === 0} in:fly={{y:-40,duration:1000}} style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease; position: relative; z-index: 2;">
         <div 
             class="zalando text-[2em]" 
             in:fade={{ duration: 700 }}
@@ -285,3 +290,64 @@
         </div>
     </div>
 </div>
+<style>
+    .blur-backdrop {
+        position: absolute;
+        bottom: -3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% + 20rem);
+        height: calc(100% + 7rem);
+        backdrop-filter: blur(40px);
+        -webkit-backdrop-filter: blur(40px);
+        /* fade out on all sides — nothing above the top of the menu */
+        mask-image: linear-gradient(
+            to top,
+            rgba(0,0,0,1) 0%,
+            rgba(0,0,0,0.9) 40%,
+            rgba(0,0,0,0.5) 70%,
+            transparent 100%
+        ),
+        linear-gradient(
+            to right,
+            transparent 0%,
+            rgba(0,0,0,0.8) 12%,
+            rgba(0,0,0,1) 30%,
+            rgba(0,0,0,1) 70%,
+            rgba(0,0,0,0.8) 88%,
+            transparent 100%
+        );
+        -webkit-mask-image: linear-gradient(
+            to top,
+            rgba(0,0,0,1) 0%,
+            rgba(0,0,0,0.9) 40%,
+            rgba(0,0,0,0.5) 70%,
+            transparent 100%
+        ),
+        linear-gradient(
+            to right,
+            transparent 0%,
+            rgba(0,0,0,0.8) 12%,
+            rgba(0,0,0,1) 30%,
+            rgba(0,0,0,1) 70%,
+            rgba(0,0,0,0.8) 88%,
+            transparent 100%
+        );
+        mask-composite: intersect;
+        -webkit-mask-composite: source-in;
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .white-glow {
+        position: absolute;
+        bottom: -3rem;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% + 40rem);
+        height: calc(100% + 7rem);
+        background: radial-gradient(ellipse at center bottom, rgba(255,255,255,0.18) 0%, transparent 70%);
+        z-index: 1;
+        pointer-events: none;
+    }
+</style>
