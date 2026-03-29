@@ -8,6 +8,7 @@
         startYear: string;
         endYear: string;
         achievements?: string[];
+        achievementGroups?: { title: string; items: string[] }[];
         gpa?: string;
     }
     
@@ -40,14 +41,30 @@
         </div>
         
         <!-- Achievements List -->
-        {#if data.achievements && data.achievements.length > 0}
+        {#if (data.achievements && data.achievements.length > 0) || (data.achievementGroups && data.achievementGroups.length > 0)}
             <div class="achievements-section">
                 <div class="achievements-label mondwest">Highlights</div>
-                <ul class="achievements-list">
-                    {#each data.achievements as achievement}
-                        <li class="zalando achievement-item">{achievement}</li>
+
+                {#if data.achievements && data.achievements.length > 0}
+                    <ul class="achievements-list">
+                        {#each data.achievements as achievement (achievement)}
+                            <li class="zalando achievement-item">{achievement}</li>
+                        {/each}
+                    </ul>
+                {/if}
+
+                {#if data.achievementGroups && data.achievementGroups.length > 0}
+                    {#each data.achievementGroups as group (group.title)}
+                        <div class="achievement-group">
+                            <h3 class="zalando achievement-group-title">{group.title}</h3>
+                            <ul class="achievements-list">
+                                {#each group.items as item (item)}
+                                    <li class="zalando achievement-item">{item}</li>
+                                {/each}
+                            </ul>
+                        </div>
                     {/each}
-                </ul>
+                {/if}
             </div>
         {/if}
     </div>
@@ -109,6 +126,7 @@
     
     .achievements-section {
         margin-top: 2rem;
+        margin-bottom: 2rem;
     }
     
     .achievements-label {
@@ -122,6 +140,17 @@
         list-style: none;
         padding: 0;
         margin: 0;
+    }
+
+    .achievement-group {
+        margin-top: 1rem;
+    }
+
+    .achievement-group-title {
+        font-size: 28px;
+        font-weight: 600;
+        color: var(--color-blue);
+        margin: 0 0 0.4rem 0;
     }
     
     .achievement-item {

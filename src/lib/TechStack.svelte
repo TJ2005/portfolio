@@ -25,46 +25,35 @@
 <!-- ═══════════════════════════════════════════════
      SLIDE 8 — infinite marquee
 ════════════════════════════════════════════════ -->
-{#if currentSlide === 8}
+{#if currentSlide === 10}
 <div class="marquee-stage" in:fade={{ duration: 700 }}>
     <div class="track left">
-        {#each row as t}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
+        {#each row as t, i (i)}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
     </div>
     <div class="track right">
-        {#each row as t}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
+        {#each row as t, i (i)}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
     </div>
     <div class="track left d1">
-        {#each row as t}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
+        {#each row as t, i (i)}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
     </div>
     <div class="track right d2">
-        {#each row as t}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
+        {#each row as t, i (i)}<div class="chip"><img src={t.logo} alt={t.name} /></div>{/each}
     </div>
 </div>
 
 <!-- ═══════════════════════════════════════════════
      SLIDE 9 — tools list (matches experience card style)
 ════════════════════════════════════════════════ -->
-{:else if currentSlide === 9}
+{:else if currentSlide === 11}
 <div class="tools-wrap" in:fly={{ y: 60, duration: 900, easing: cubicInOut }}>
 
     <!-- label row identical to "Responsibilities" in ExperienceCard -->
     <p class="tools-label mondwest">My Tools</p>
 
     <ul class="tools-list">
-        {#each techStack as tech, i}
+        {#each techStack as tech, i (tech.name)}
         <li class="tool-row"
             in:fly={{ x: 40, duration: 500, delay: i * 50, easing: cubicInOut }}>
-
-            <!-- blue down-arrow bullet -->
-            <span class="bullet">
-                <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-                    <circle cx="16" cy="16" r="15" fill="var(--color-blue)" fill-opacity="0.1"
-                            stroke="var(--color-blue)" stroke-width="1.5"/>
-                    <path d="M16 9v14M16 23l-5-5M16 23l5-5"
-                          stroke="var(--color-blue)" stroke-width="2"
-                          stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-            </span>
 
             <!-- logo, tinted blue -->
             <span class="tool-logo">
@@ -165,15 +154,6 @@
     border-bottom: 1px solid rgba(25, 0, 255, 0.08);
 }
 .tool-row:last-child { border-bottom: none; }
-
-.bullet {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 22px;
-    height: 22px;
-}
 
 .tool-logo {
     flex-shrink: 0;

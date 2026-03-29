@@ -4,14 +4,22 @@
     let { visible = false } = $props();
 
     const projects = [
-        { title: "Portfolio Website",    description: "This very site — SvelteKit, snap-scroll, cursor parallax & variable fonts." },
-        { title: "AI Data Pipeline",     description: "End-to-end ML data labelling & human review system built for scale." },
-        { title: "Dashboard UI",         description: "Analytics dashboard with real-time charts, filters & live data viz." },
-        { title: "DevOps Toolkit",       description: "Docker + Cloudflare deployment pipeline with one-click CI/CD." },
-        { title: "Design System",        description: "Component library + Storybook docs for a cross-platform product suite." },
-        { title: "Mobile App",           description: "React Native app with offline-first sync and biometric auth." },
-        { title: "E-Commerce Platform",  description: "Headless storefront with real-time inventory and custom checkout flow." },
-        { title: "Open Source CLI",      description: "Node.js CLI tool for scaffolding projects — 2k+ weekly downloads." },
+        {
+            title: "Comms - E2E Encrypted Messaging Platform",
+            description: "Production-grade real-time messaging with end-to-end encryption, secure key exchange, socket-based delivery, and scalable auth/session management."
+        },
+        {
+            title: "Truck Resource Manager - Manorama Supply Chain",
+            description: "Logistics fleet management system tracking fuel, maintenance, driver allocations, and trip-level financial workflows with dashboards and reporting."
+        },
+        {
+            title: "WhatsApp Business Automation Bots",
+            description: "Event-driven WhatsApp bots automating bookings, order confirmations, and customer queries with CRM and operational database integration."
+        },
+        {
+            title: "Open-Source UI Component Library - Studio Ursus",
+            description: "Accessible, themeable React component library adopted for rapid prototyping and cross-project visual consistency."
+        },
     ];
 
     const PAGE_SIZE = 4;

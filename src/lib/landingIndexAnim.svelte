@@ -23,15 +23,12 @@
     const MENU_WEIGHT_ACTIVE = 600;     // When section is active (slide 1+)
 
     const menuItems = [
-        { id:'work', label:'Work Experience',roman:'I'},
-        { id:'education', label:'Education',roman:'II'},
-        { id:'cs-stack', label:'Computer Science Stack',roman:'III'},
-        { id:'projects', label:'Projects',roman:'IV'},
-        { id:'github', label:'GitHub',roman:'V'},
-        { id: 'content-stack', label: 'Content Creation Stack', roman: 'VI' },
-        { id: 'about', label: 'About Me', roman: 'VII' },
-        { id: 'contact', label: "Let's get in Touch", roman: 'VIII' },
-        { id: 'extras', label: "Extra's", roman: 'IX' }
+        { id: 'about', label: 'About Me', roman: 'I' },
+        { id:'work', label:'Work Experience',roman:'II'},
+        { id:'education', label:'Education',roman:'III'},
+        { id:'cs-stack', label:'Computer Science Stack',roman:'IV'},
+        { id:'projects', label:'Projects',roman:'V'},
+        { id: 'contact', label: "Let's get in Touch", roman: 'VI' }
     ]
 
     const blurAmount = new Tween(4,{
@@ -209,7 +206,7 @@
                 line-height: 1.2em;
                 letter-spacing: -0.05em;
                 font-weight: {topLeftTitleWeight};
-                color: {currentSlide === 1 ? 'white' : 'var(--color-blue)'};
+                color: var(--color-blue);
                 filter: drop-shadow(0 2px 8px rgba(25, 0, 255, 0.4));
                 transition: color 0.6s ease, font-weight 0.6s ease, filter 0.6s ease;
             "
@@ -229,12 +226,20 @@
         transition: left 0.8s cubic-bezier(0.65, 0, 0.35, 1), bottom 0.8s cubic-bezier(0.65, 0, 0.35, 1), top 0.8s cubic-bezier(0.65, 0, 0.35, 1), transform 0.8s cubic-bezier(0.65, 0, 0.35, 1);
     "
 >
-    <!-- Gradient blur backdrop -->{#if currentSlide === 8}
+    <!-- Gradient blur backdrop -->{#if currentSlide === 10}
         <div class="blur-backdrop"></div>
         <div class="white-glow"></div>
     {/if}
     
-    <div class="min-w-[20em] py-[0.875em]" class:px-[1.125em]={currentSlide === 0} in:fly={{y:-40,duration:1000}} style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease; position: relative; z-index: 2;">
+    <div
+        class="min-w-[20em]"
+        class:py-[0.875em]={currentSlide === 0}
+        class:pt-[0.875em]={currentSlide !== 0}
+        class:pb-0={currentSlide !== 0}
+        class:px-[1.125em]={currentSlide === 0}
+        in:fly={{y:-40,duration:1000}}
+        style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease; position: relative; z-index: 2;"
+    >
         <div 
             class="zalando text-[2em]" 
             in:fade={{ duration: 700 }}

@@ -1,14 +1,21 @@
-<script>
+<script lang="ts">
     import LoadingAnimator from "$lib/loadingAnimator.svelte";
     import LandingIndexAnim from "$lib/landingIndexAnim.svelte";
     import ScrollParallax from "$lib/ScrollParallax.svelte";
     import ExperienceCard from "$lib/ExperienceCard.svelte";
+    import AboutCard from "$lib/AboutCard.svelte";
     import EducationCard from "$lib/EducationCard.svelte";
     import TechStack from "$lib/TechStack.svelte";
     import ProjectsPanel from "$lib/ProjectsPanel.svelte";
-    import { fade } from "svelte/transition";
+    import { fade, fly } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
 	import { onMount } from "svelte";
+
+    const aboutTitleChars = "ABOUT ME*".split("");
+    const experienceTitleChars = "EXPERIENCE*".split("");
+    const educationTitleChars = "EDUCATION*".split("");
+    const expertiseTitleChars = "MY EXPERTISE*".split("");
+    const projectsTitleChars = "PROJECTS*".split("");
 
     // Parallax layer configuration (cursor-based)
     const parallaxLayers = [
@@ -44,83 +51,81 @@
 
 
     let currentSlide = $state(0);
+    let previousSlide = $state(0);
     let activeSection = $state('home');
     let startAnimation = $state(true);
     let showLoader = $state(true);
     let startMainAnimation = $state(false);
     let assetsLoaded = $state(false);
-    let snapContainer = $state(null);
+    let snapContainer = $state<HTMLDivElement | null>(null);
     
     // Experience data
     const experienceData = [
         {
-            companyName: "Placeholder Name",
-            jobTitle: "Lead Web Developer",
-            employmentType: "Full Time",
-            startYear: "2024",
-            endYear: "2025",
+            companyName: "Adzzat",
+            jobTitle: "Machine Learning Systems Contributor",
+            employmentType: "Contributor",
+            startYear: "Dec 2025",
+            endYear: "Present",
             responsibilities: [
-                "Handling Deployments",
-                "Lorem Ipsum Lorets Lorem Ipsum Lorets Lorem Ipsum Lorets",
-                "Managing customer requirements",
-                "Design Revisions adhoc",
-                "Handling Deployments",
-                "Lorem Ipsum Lorets Lorem Ipsum Lorets Lorem Ipsum Lorets",
-                "Managing customer requirements"
+                "Resolved and structured GitHub issue data for model training and evaluation cycles.",
+                "Built validation checks to catch leakage and regression risks early.",
+                "Delivered reproducible PRs with clean documentation and versioned workflows."
             ]
         },
         {
-            companyName: "Another Company",
-            jobTitle: "Senior Developer",
-            employmentType: "Contract",
-            startYear: "2022",
-            endYear: "2024",
+            companyName: "Manorama Supply Chain Solutions Group",
+            jobTitle: "Web Developer / IT Admin",
+            employmentType: "Full Time",
+            startYear: "Oct 2020",
+            endYear: "Present",
             responsibilities: [
-                "Building scalable applications",
-                "Code reviews and mentoring",
-                "Architecture planning"
+                "Own end-to-end web and IT operations across domains, SSL, email infrastructure, and backups.",
+                "Built and maintain internal and public-facing systems for logistics operations.",
+                "Managed server infrastructure and governance for sensitive BL/MBL documentation flows.",
+                "Driving workflow automation to reduce manual errors and improve turnaround time."
+            ]
+        },
+        {
+            companyName: "Codeloom",
+            jobTitle: "Lead Web Developer",
+            employmentType: "Full Time",
+            startYear: "Jan 2025",
+            endYear: "Oct 2026",
+            responsibilities: [
+                "Led delivery of production websites using React and modern JavaScript stacks.",
+                "Owned UI/UX implementation, database optimization, and SEO/performance standards.",
+                "Built testing frameworks, custom WordPress plugins, and managed Webflow deployments.",
+                "Mentored interns on CLI usage, development workflows, and requirement engineering."
             ]
         }
+        
     ];
 
     // Education data
     const educationData = [
         {
-            institutionName: "University Name",
-            degree: "Bachelor of Science",
-            fieldOfStudy: "Computer Science",
-            startYear: "2018",
-            endYear: "2022",
+            institutionName: "SVKM NMIMS",
+            degree: "B.Tech",
+            fieldOfStudy: "Engineering",
+            startYear: "2023",
+            endYear: "2027",
             achievements: [
-                "Dean's List all semesters",
-                "Led student tech club",
-                "Published research paper on ML"
-            ],
-            gpa: "3.9"
+                "Pursuing B.Tech in Mumbai",
+                "Positions of Responsibility:",
+                "Technical Head, Cyber Chakravyuh - led CTF ops and event tech.",
+                "Technical and Digital Creatives Head, FOSS MPSTME - managed tech flows and creatives."
+            ]
         },
         {
-            institutionName: "High School Name",
-            degree: "High School Diploma",
-            fieldOfStudy: "Science and Mathematics",
-            startYear: "2016",
-            endYear: "2018",
-            achievements: [
-                "Valedictorian",
-                "National Merit Scholar",
-                "Math Olympiad Gold Medal"
-            ],
-            gpa: "4.0"
-        },
-        {
-            institutionName: "Online Learning Platform",
-            degree: "Professional Certificate",
-            fieldOfStudy: "Web Development",
+            institutionName: "DPS Panvel, CBSE",
+            degree: "Class 12",
+            fieldOfStudy: "Science - Mathematics",
             startYear: "2023",
             endYear: "2023",
             achievements: [
-                "Completed Full Stack Development course",
-                "Built 5 production-ready projects",
-                "Earned top performer badge"
+                "Completed Senior Secondary education in Navi Mumbai.",
+                "During this period, delivered freelance projects in brand development and web development."
             ]
         }
     ];
@@ -141,7 +146,7 @@
         ];
         Promise.all(
             imagesToPreload.map(src=>{
-                return new Promise((resolve) =>{
+                return new Promise<void>((resolve) =>{
                     const img = new Image();
                     img.src = src;
                     img.onload = () => resolve();
@@ -157,34 +162,36 @@
 
     const slides = [
         { id:'home', label:'Home', count:1 },
-        { id:'work', label:'Work Experience', count:2, subSlide: 0 },
-        { id:'work', label:'Work Experience - Job 1', count:3, subSlide: 1 },
-        { id:'work', label:'Work Experience - Job 2', count:4, subSlide: 2 },
-        { id:'education', label:'Education', count:5, subSlide: 0 },
-        { id:'education', label:'Education - Degree 1', count:6, subSlide: 1 },
-        { id:'education', label:'Education - Degree 2', count:7, subSlide: 2 },
-        { id:'education', label:'Education - Degree 3', count:8, subSlide: 3 },
-        { id:'cs-stack', label:'Computer Science Stack', count:9, subSlide: 0 },
-        { id:'cs-stack', label:'Computer Science Stack - Detail', count:10, subSlide: 1 },
-        { id:'projects', label:'Projects', count:11 },
-        { id:'github', label:'GitHub', count:12 },
-        { id: 'content-stack', label: 'Content Creation Stack', count: 13 },
-        { id: 'about', label: 'About Me', count: 14 },
+        { id:'about', label:'About Me - Intro', count:2, subSlide: 0 },
+        { id:'about', label:'About Me - Narrative', count:3, subSlide: 1 },
+        { id:'work', label:'Work Experience', count:4, subSlide: 0 },
+        { id:'work', label:'Work Experience - Job 1', count:5, subSlide: 1 },
+        { id:'work', label:'Work Experience - Job 2', count:6, subSlide: 2 },
+        { id:'work', label:'Work Experience - Job 3', count:7, subSlide: 3 },
+        { id:'education', label:'Education', count:8, subSlide: 0 },
+        { id:'education', label:'Education - Degree 1', count:9, subSlide: 1 },
+        { id:'education', label:'Education - Degree 2', count:10, subSlide: 2 },
+        { id:'cs-stack', label:'Computer Science Stack', count:11, subSlide: 0 },
+        { id:'cs-stack', label:'Computer Science Stack - Detail', count:12, subSlide: 1 },
+        { id:'projects', label:'Projects - Intro', count:13, subSlide: 0 },
+        { id:'projects', label:'Projects - Grid', count:14, subSlide: 1 },
         { id: 'contact', label: "Let's get in Touch", count: 15 },
-        { id: 'extras', label: "Extra's", count: 16 },
-        { id: 'footer', label: 'Footer', count: 17 }
+        { id: 'footer', label: 'Footer', count: 16 }
     ]
     
     // Track scroll and update current slide
     $effect(()=>{
-        if (!snapContainer) return;
+        const container = snapContainer;
+        if (!(container instanceof HTMLDivElement)) return;
         
         function handleScroll(){
-            const scrollPercentage = snapContainer.scrollTop / window.innerHeight;
+            const scrollPercentage = (container as HTMLDivElement).scrollTop / window.innerHeight;
             const newSlide = Math.round(scrollPercentage);
             
             // Only update if slide actually changed
             if(newSlide !== currentSlide){
+                const priorSlide = currentSlide;
+                previousSlide = priorSlide;
                 currentSlide = newSlide;
 
                 // Update active section based on slide number
@@ -197,10 +204,10 @@
         }
         
         // Attach scroll listener to the container
-        snapContainer.addEventListener('scroll', handleScroll, { passive: true });
+        (container as HTMLDivElement).addEventListener('scroll', handleScroll, { passive: true });
         
         // Cleanup on unmount
-        return () => snapContainer.removeEventListener('scroll', handleScroll);
+        return () => (container as HTMLDivElement).removeEventListener('scroll', handleScroll);
     })
 
 
@@ -216,11 +223,11 @@
         <LoadingAnimator on:animationComplete={hideLoader} />
     </div>
 {:else}
-    <!-- Fixed Experience Title (shows on work slides) -->
-    {#if currentSlide >= 1 && currentSlide <= 3}
-        <div 
-            class="fixed-experience-title"
-            in:fade={{ duration: 600 }}
+    <!-- Fixed About Title (shows on about slides) -->
+    {#if currentSlide >= 1 && currentSlide <= 2}
+        <div
+            class="fixed-about-title"
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
             out:fade={{ duration: 600 }}
             style="
                 position: fixed;
@@ -230,37 +237,67 @@
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
             "
         >
-            <h1 class="mondwest" style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">EXPERIENCE*</h1>
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 1 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">
+                {#each aboutTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
         </div>
     {/if}
 
-    <!-- Fixed Education Title (shows on education slides) -->
-    {#if currentSlide >= 4 && currentSlide <= 7}
+    <!-- Fixed Experience Title (shows on work slides) -->
+    {#if currentSlide >= 3 && currentSlide <= 6}
         <div 
-            class="fixed-education-title"
-            in:fade={{ duration: 600 }}
+            class="fixed-experience-title"
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
             out:fade={{ duration: 600 }}
             style="
                 position: fixed;
-                top: {currentSlide === 4 ? 'calc(100vh - 8rem)' : '2rem'};
+                top: {currentSlide === 3 ? 'calc(100vh - 8rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
             "
         >
-            <h1 class="mondwest" style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">EDUCATION*</h1>
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 3 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">
+                {#each experienceTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
+        </div>
+    {/if}
+
+    <!-- Fixed Education Title (shows on education slides) -->
+    {#if currentSlide >= 7 && currentSlide <= 9}
+        <div 
+            class="fixed-education-title"
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
+            out:fade={{ duration: 600 }}
+            style="
+                position: fixed;
+                top: {currentSlide === 7 ? 'calc(100vh - 8rem)' : '2rem'};
+                right: 2rem;
+                z-index: 90;
+                transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            "
+        >
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 7 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">
+                {#each educationTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
         </div>
     {/if}
 
     <!-- Fixed CS Stack Title (shows on tech stack slides) -->
-    {#if currentSlide >= 8 && currentSlide <= 9}
+    {#if currentSlide >= 10 && currentSlide <= 11}
         <div 
             class="fixed-csstack-title"
-            in:fade={{ duration: 600 }}
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
             out:fade={{ duration: 600 }}
             style="
                 position: fixed;
-                top: {currentSlide === 8 ? 'calc(100vh - 8rem)' : '2rem'};
+                top: {currentSlide === 10 ? 'calc(100vh - 8rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -284,23 +321,32 @@
                 pointer-events: none;
                 z-index: -1;
             "></div>
-            <h1 class="mondwest" style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue); position: relative;">MY EXPERTISE*</h1>
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 10 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue); position: relative;">
+                {#each expertiseTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
         </div>
     {/if}
 
     <!-- Fixed Projects Title -->
-    {#if currentSlide === 10}
+    {#if currentSlide >= 12 && currentSlide <= 13}
         <div
-            in:fade={{ duration: 600 }}
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
             out:fade={{ duration: 600 }}
             style="
                 position: fixed;
-                top: 2rem;
+                top: {currentSlide === 12 ? 'calc(100vh - 8rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
+                transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
             "
         >
-            <h1 class="mondwest" style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">PROJECTS*</h1>
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 12 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">
+                {#each projectsTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
         </div>
     {/if}
     
@@ -314,66 +360,79 @@
                 startAnimation={startMainAnimation}
             />
         </section>
+
+        <!-- Slide 1: About - Title Intro -->
+        <section id="about" class="snap-section bg-white">
+        </section>
+
+        <!-- Slide 2: About - Animated Intro + Content Reveal -->
+        <section id="about-narrative" class="snap-section bg-white">
+            <AboutCard visible={currentSlide === 2} />
+        </section>
         
-        <!-- Slide 1: Work Experience - Title Intro -->
+        <!-- Slide 3: Work Experience - Title Intro -->
         <section id="work" class="snap-section bg-white">
         </section>
         
-        <!-- Slide 2: Work Experience - First Job -->
+        <!-- Slide 4: Work Experience - First Job -->
         <section id="work-1" class="snap-section bg-white">
             <!-- First Job Card -->
             <div class="experience-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
-                <ExperienceCard data={experienceData[0]} visible={currentSlide >= 2} />
+                <ExperienceCard data={experienceData[0]} visible={currentSlide >= 4} />
             </div>
         </section>
         
-        <!-- Slide 3: Work Experience - Second Job -->
+        <!-- Slide 5: Work Experience - Second Job -->
         <section id="work-2" class="snap-section bg-white">
             <!-- Second Job Card -->
             <div class="experience-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
-                <ExperienceCard data={experienceData[1]} visible={currentSlide >= 3} />
+                <ExperienceCard data={experienceData[1]} visible={currentSlide >= 5} />
             </div>
         </section>
 
-        <!-- Slide 4: Education Title Intro -->
+        <!-- Slide 6: Work Experience - Third Job -->
+        <section id="work-3" class="snap-section bg-white">
+            <div class="experience-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
+                <ExperienceCard data={experienceData[2]} visible={currentSlide >= 6} />
+            </div>
+        </section>
+
+        <!-- Slide 7: Education Title Intro -->
         <section id="education-intro" class="snap-section bg-white">
             <!-- Title will be handled by fixed position div -->
         </section>
 
-        <!-- Slide 5: Education - First Entry -->
+        <!-- Slide 8: Education - First Entry -->
         <section id="education-0" class="snap-section bg-white">
             <div class="education-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
-                <EducationCard data={educationData[0]} visible={currentSlide >= 5} />
+                <EducationCard data={educationData[0]} visible={currentSlide >= 8} />
             </div>
         </section>
 
-        <!-- Slide 6: Education - Second Entry -->
+        <!-- Slide 9: Education - Second Entry -->
         <section id="education-1" class="snap-section bg-white">
             <div class="education-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
-                <EducationCard data={educationData[1]} visible={currentSlide >= 6} />
+                <EducationCard data={educationData[1]} visible={currentSlide >= 9} />
             </div>
         </section>
 
-        <!-- Slide 7: Education - Third Entry -->
-        <section id="education-2" class="snap-section bg-white">
-            <div class="education-content" style="position: absolute; bottom: 0rem; right: 2.75rem; max-height: calc(100vh - 12rem); overflow-y: auto;">
-                <EducationCard data={educationData[2]} visible={currentSlide >= 7} />
-            </div>
-        </section>
-
-        <!-- Slide 8: CS Stack - Scrolling Animation -->
+        <!-- Slide 10: CS Stack - Scrolling Animation -->
         <section id="cs-stack" class="snap-section bg-white">
             <TechStack currentSlide={currentSlide} />
         </section>
 
-        <!-- Slide 9: CS Stack - Detailed Grid -->
+        <!-- Slide 11: CS Stack - Detailed Grid -->
         <section id="cs-stack-detail" class="snap-section bg-white">
             <TechStack currentSlide={currentSlide} />
         </section>
 
-        <!-- Slide 10: Projects -->
+        <!-- Slide 12: Projects Intro -->
         <section id="projects" class="snap-section bg-white">
-            <ProjectsPanel visible={currentSlide === 10} />
+        </section>
+
+        <!-- Slide 13: Projects Grid -->
+        <section id="projects-grid" class="snap-section bg-white">
+            <ProjectsPanel visible={currentSlide === 13} />
         </section>
         
         
@@ -401,13 +460,33 @@
     .bg-white {
         background-color: white;
     }
-    
-    .content-wrapper {
-        padding: 4rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 60;
+
+    .animated-section-title {
+        display: inline-flex;
+        white-space: nowrap;
     }
+
+    .intro-char {
+        display: inline-block;
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .animated-section-title.intro-active .intro-char {
+        animation: section-title-rise 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+        animation-delay: calc(var(--char-index) * 45ms);
+    }
+
+    @keyframes section-title-rise {
+        from {
+            opacity: 0;
+            transform: translateY(0.62em);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
 </style>
 
