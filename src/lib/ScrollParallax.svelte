@@ -10,16 +10,17 @@
 	interface Props {
 		layers: ParallaxLayer[];
 		maxShift?: number;
+		enabled?: boolean;
 	}
 
-	let { layers, maxShift = 50 }: Props = $props();
+	let { layers, maxShift = 50, enabled = true }: Props = $props();
 
 	let mouseX = $state(0);
 	let mouseY = $state(0);
 	let containerRef: HTMLDivElement;
 
 	function handleMouseMove(event: MouseEvent) {
-		if (!containerRef) return;
+		if (!containerRef || !enabled) return;
 		
 		const rect = containerRef.getBoundingClientRect();
 		const centerX = rect.left + rect.width / 2;
@@ -31,6 +32,12 @@
 	}
 
 	$effect(() => {
+		if (!enabled) {
+			mouseX = 0;
+			mouseY = 0;
+			return;
+		}
+
 		window.addEventListener('mousemove', handleMouseMove);
 		return () => {
 			window.removeEventListener('mousemove', handleMouseMove);

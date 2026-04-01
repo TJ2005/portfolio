@@ -7,6 +7,7 @@
     import EducationCard from "$lib/EducationCard.svelte";
     import TechStack from "$lib/TechStack.svelte";
     import ProjectsPanel from "$lib/ProjectsPanel.svelte";
+    import SiteFooter from "$lib/SiteFooter.svelte";
     import { fade, fly } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
 	import { onMount } from "svelte";
@@ -353,7 +354,7 @@
     <div class="snap-container" bind:this={snapContainer} in:fade={{ duration: 1850 }}>
         <!-- Slide 0: Home/Landing -->
         <section id="home" class="snap-section">
-            <ScrollParallax layers={parallaxLayers} maxShift={80} />
+            <ScrollParallax layers={parallaxLayers} maxShift={80} enabled={currentSlide === 0} />
             <LandingIndexAnim 
                 {activeSection}
                 {currentSlide}
@@ -433,6 +434,15 @@
         <!-- Slide 13: Projects Grid -->
         <section id="projects-grid" class="snap-section bg-white">
             <ProjectsPanel visible={currentSlide === 13} />
+        </section>
+
+        <!-- Slide 14: Contact Placeholder -->
+        <section id="contact" class="snap-section bg-white">
+        </section>
+
+        <!-- Slide 15: Footer -->
+        <section id="footer" class="snap-section">
+            <SiteFooter />
         </section>
         
         

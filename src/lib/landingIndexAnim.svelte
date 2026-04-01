@@ -202,7 +202,7 @@
         <div 
             class="zalando"
             style="
-                font-size: 32px;
+                font-size: 48px;
                 line-height: 1.2em;
                 letter-spacing: -0.05em;
                 font-weight: {topLeftTitleWeight};
@@ -211,7 +211,7 @@
                 transition: color 0.6s ease, font-weight 0.6s ease, filter 0.6s ease;
             "
         >
-            Tejas Kamal<br />Sahoo
+            TJ25
         </div>
     </div>
 {/if}
