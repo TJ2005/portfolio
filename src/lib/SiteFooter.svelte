@@ -16,10 +16,13 @@
     const instagramHref = "/";
 
     const MOUSE_STEP = 80;
+    const FOOTER_SHIFT_MAX = 180;
+    let footerSectionEl: HTMLElement | undefined;
     let footerWrapEl: HTMLDivElement | undefined;
     let footerMoveEl: HTMLDivElement | undefined;
     let footerEntered = $state(false);
     let lastX: number | null = null;
+    let scrollContainerEl: HTMLDivElement | null = null;
     const prefersReducedMotion =
         typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
@@ -31,10 +34,23 @@
 
     function applyFooterTransform() {
         if (!footerMoveEl || !motionEnabled) return;
+        if (!footerWrapEl) return;
 
-        const doc = document.documentElement;
-        const remaining = Math.max(0, doc.scrollHeight - (window.scrollY + window.innerHeight));
-        const scrollShift = isMobileViewport() ? 0 : -(remaining / 3);
+        if (isMobileViewport()) {
+            footerMoveEl.style.transform = "translate3d(0, 0px, 0)";
+            return;
+        }
+
+        const rect = (footerSectionEl ?? footerWrapEl).getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+        const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
+        let scrollShift = -(1 - progress) * FOOTER_SHIFT_MAX;
+
+        // Once the footer section reaches the snapped position, lock to zero shift.
+        if (rect.top <= 0 || Math.abs(scrollShift) < 0.5) {
+            scrollShift = 0;
+        }
+
         footerMoveEl.style.transform = `translate3d(0, ${scrollShift}px, 0)`;
     }
 
@@ -72,6 +88,8 @@
     }
 
     onMount(() => {
+        scrollContainerEl = document.querySelector(".snap-container");
+
         const onScroll = () => applyFooterTransform();
         const onResize = () => {
             if (!motionEnabled || isMobileViewport()) {
@@ -86,18 +104,26 @@
                     if (entry.isIntersecting) footerEntered = true;
                 });
             },
-            { threshold: 0.18 }
+            { threshold: 0.18, root: scrollContainerEl }
         );
 
         if (footerWrapEl) entryObserver.observe(footerWrapEl);
 
         applyFooterTransform();
-        window.addEventListener("scroll", onScroll, { passive: true });
+        if (scrollContainerEl) {
+            scrollContainerEl.addEventListener("scroll", onScroll, { passive: true });
+        } else {
+            window.addEventListener("scroll", onScroll, { passive: true });
+        }
         window.addEventListener("resize", onResize);
 
         return () => {
             entryObserver.disconnect();
-            window.removeEventListener("scroll", onScroll);
+            if (scrollContainerEl) {
+                scrollContainerEl.removeEventListener("scroll", onScroll);
+            } else {
+                window.removeEventListener("scroll", onScroll);
+            }
             window.removeEventListener("resize", onResize);
         };
     });
@@ -107,7 +133,7 @@
     });
 </script>
 
-<section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue">
+<section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue" bind:this={footerSectionEl}>
     <FooterCta line1="Have an Idea?" line2="Let's Make it Happen." buttonText="Get in touch" {motionEnabled} />
 
     <div
@@ -302,7 +328,7 @@
     }
 
     .footer-ani-wrapper {
-        overflow: hidden;
+        overflow: visible;
         opacity: 0;
         transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1);
     }

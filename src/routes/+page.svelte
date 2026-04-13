@@ -441,7 +441,7 @@
         </section>
 
         <!-- Slide 15: Footer -->
-        <section id="footer" class="snap-section">
+        <section id="footer" class="snap-section footer-section">
             <SiteFooter />
         </section>
         
@@ -465,6 +465,11 @@
         height: 100vh;
         width: 100vw;
         position: relative;
+    }
+
+    .footer-section {
+        height: auto;
+        min-height: 100vh;
     }
     
     .bg-white {
