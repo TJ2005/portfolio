@@ -8,7 +8,7 @@
     import TechStack from "$lib/TechStack.svelte";
     import ProjectsPanel from "$lib/ProjectsPanel.svelte";
     import SiteFooter from "$lib/SiteFooter.svelte";
-    import { fade, fly } from "svelte/transition";
+    import { fade, fly, slide } from "svelte/transition";
     import { cubicOut } from "svelte/easing";
 	import { onMount } from "svelte";
 
@@ -17,6 +17,14 @@
     const educationTitleChars = "EDUCATION*".split("");
     const expertiseTitleChars = "MY EXPERTISE*".split("");
     const projectsTitleChars = "PROJECTS*".split("");
+    const contactTitleChars = "LET'S GET IN TOUCH*".split("");
+    const contactOfferPhrases = [
+        "ideas",
+        "SaaS Product",
+        "Startup MVP",
+        "next Big Thing",
+        "Tech Solution"
+    ];
 
     // Parallax layer configuration (cursor-based)
     const parallaxLayers = [
@@ -58,7 +66,7 @@
     let showLoader = $state(true);
     let startMainAnimation = $state(false);
     let assetsLoaded = $state(false);
-    let snapContainer = $state<HTMLDivElement | null>(null);
+    let contactPhraseIndex = $state(0);
     
     // Experience data
     const experienceData = [
@@ -161,6 +169,15 @@
         });
     })
 
+    onMount(() => {
+        const rotator = setInterval(() => {
+            if (contactPhraseIndex === contactOfferPhrases.length - 1) contactPhraseIndex = 0;
+            else contactPhraseIndex++;
+        }, 1250);
+
+        return () => clearInterval(rotator);
+    });
+
     const slides = [
         { id:'home', label:'Home', count:1 },
         { id:'about', label:'About Me - Intro', count:2, subSlide: 0 },
@@ -176,40 +193,26 @@
         { id:'cs-stack', label:'Computer Science Stack - Detail', count:12, subSlide: 1 },
         { id:'projects', label:'Projects - Intro', count:13, subSlide: 0 },
         { id:'projects', label:'Projects - Grid', count:14, subSlide: 1 },
-        { id: 'contact', label: "Let's get in Touch", count: 15 },
-        { id: 'footer', label: 'Footer', count: 16 }
+        { id: 'contact', label: "Let's get in Touch - Intro", count: 15, subSlide: 0 },
+        { id: 'contact', label: "Let's get in Touch - Detail", count: 16, subSlide: 1 },
+        { id: 'footer', label: 'Footer', count: 17 }
     ]
-    
-    // Track scroll and update current slide
-    $effect(()=>{
-        const container = snapContainer;
-        if (!(container instanceof HTMLDivElement)) return;
-        
-        function handleScroll(){
-            const scrollPercentage = (container as HTMLDivElement).scrollTop / window.innerHeight;
-            const newSlide = Math.round(scrollPercentage);
-            
-            // Only update if slide actually changed
-            if(newSlide !== currentSlide){
-                const priorSlide = currentSlide;
-                previousSlide = priorSlide;
-                currentSlide = newSlide;
 
-                // Update active section based on slide number
-                slides.forEach(element => {
-                    if(element.count === currentSlide + 1){
-                        activeSection = element.id;
-                    }
-                });
-            }
+    function handleContainerScroll(event: Event) {
+        const container = event.currentTarget as HTMLDivElement;
+        const scrollPercentage = container.scrollTop / window.innerHeight;
+        const newSlide = Math.round(scrollPercentage);
+
+        if (newSlide === currentSlide) return;
+
+        previousSlide = currentSlide;
+        currentSlide = newSlide;
+
+        const nextSection = slides.find((slide) => slide.count === newSlide + 1);
+        if (nextSection) {
+            activeSection = nextSection.id;
         }
-        
-        // Attach scroll listener to the container
-        (container as HTMLDivElement).addEventListener('scroll', handleScroll, { passive: true });
-        
-        // Cleanup on unmount
-        return () => (container as HTMLDivElement).removeEventListener('scroll', handleScroll);
-    })
+    }
 
 
     setTimeout(()=> {
@@ -350,8 +353,29 @@
             </h1>
         </div>
     {/if}
+
+    <!-- Fixed Contact Title -->
+    {#if currentSlide >= 14 && currentSlide <= 15}
+        <div
+            in:fly={{ y: 56, duration: 720, easing: cubicOut }}
+            out:fade={{ duration: 600 }}
+            style="
+                position: fixed;
+                top: {currentSlide === 14 ? 'calc(100vh - 8rem)' : '2rem'};
+                right: 2rem;
+                z-index: 90;
+                transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
+            "
+        >
+            <h1 class="mondwest animated-section-title" class:intro-active={currentSlide === 14 && previousSlide < currentSlide} style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);">
+                {#each contactTitleChars as char, i (i)}
+                    <span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span>
+                {/each}
+            </h1>
+        </div>
+    {/if}
     
-    <div class="snap-container" bind:this={snapContainer} in:fade={{ duration: 1850 }}>
+    <div class="snap-container" onscroll={handleContainerScroll} in:fade={{ duration: 1850 }}>
         <!-- Slide 0: Home/Landing -->
         <section id="home" class="snap-section">
             <ScrollParallax layers={parallaxLayers} maxShift={80} enabled={currentSlide === 0} />
@@ -436,11 +460,51 @@
             <ProjectsPanel visible={currentSlide === 13} />
         </section>
 
-        <!-- Slide 14: Contact Placeholder -->
+        <!-- Slide 14: Contact Intro -->
         <section id="contact" class="snap-section bg-white">
         </section>
 
-        <!-- Slide 15: Footer -->
+        <!-- Slide 15: Contact Detail -->
+        <section id="contact-detail" class="snap-section bg-white contact-detail-section">
+            <div class="contact-card-wrap" class:is-visible={currentSlide === 15}>
+                <article class="contact-card">
+                    <h2 class="contact-card-heading">
+                        Looking to
+                        <span class="nc-highlight contact-inline-highlight-word">
+                            <span class="nc-text-line">
+                                <span class="nc-text-ani contact-build-ani">Build</span>
+                                <span class="nc-high-grey" aria-hidden="true"></span>
+                                <span class="nc-high-blue" aria-hidden="true"></span>
+                            </span>
+                        </span>
+                        something?
+                    </h2>
+                    <p class="contact-card-copy contact-flow-line contact-flow-line-1">I am just the right guy to get it done.</p>
+
+                    <p class="contact-card-meta contact-flow-line contact-flow-line-2">Contact me at</p>
+                    <a class="contact-card-email contact-flow-line contact-flow-line-3" href="mailto:tejas.kamal.sahu@gmail.com">tejas.kamal.sahu@gmail.com</a>
+
+                    <div class="contact-rotate-block contact-flow-line contact-flow-line-4">
+                        <p class="contact-rotate-line">Lets build your</p>
+                        <span class="contact-rotate-slot" aria-live="polite" aria-atomic="true">
+                            {#key contactPhraseIndex}
+                                <span class="contact-rotate-item" transition:slide={{ axis: 'y', duration: 320, easing: cubicOut }}>
+                                    <span class="nc-highlight contact-rotate-highlight">
+                                        <span class="nc-text-line">
+                                            <span class="nc-text-ani contact-rotate-ani">{contactOfferPhrases[contactPhraseIndex]}</span>
+                                            <span class="nc-high-grey" aria-hidden="true"></span>
+                                            <span class="nc-high-blue" aria-hidden="true"></span>
+                                        </span>
+                                    </span>
+                                </span>
+                            {/key}
+                        </span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Slide 16: Footer -->
         <section id="footer" class="snap-section footer-section">
             <SiteFooter />
         </section>
@@ -471,9 +535,259 @@
         height: auto;
         min-height: 100vh;
     }
-    
+
+    .contact-detail-section {
+        overflow: hidden;
+    }
+
+    .contact-card-wrap {
+        position: absolute;
+        right: 2.5rem;
+        bottom: 2.5rem;
+        width: max-content;
+        max-width: calc(100vw - 5rem);
+        opacity: 0;
+        transform: translateY(24px);
+        transition: opacity 0.55s ease, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .contact-card-wrap.is-visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .contact-card {
+        width: max-content;
+        max-width: 100%;
+        border: 0;
+        background: transparent;
+        padding: 0;
+        color: var(--color-blue);
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        text-align: right;
+    }
+
+    .contact-card-heading {
+        margin: 0;
+        font-family: "Zalando Sans", sans-serif;
+        font-size: 54px;
+        line-height: 1.04;
+        letter-spacing: -0.02em;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .contact-inline-highlight-word {
+        margin-left: 0.12em;
+        margin-right: 0.12em;
+    }
+
+    .nc-text-line {
+        display: inline-block;
+        opacity: 0;
+        position: relative;
+        transform: translateY(20px);
+        transition: transform 0.35s ease, opacity 0.35s ease;
+    }
+
+    .nc-highlight {
+        display: inline-block;
+        isolation: isolate;
+        margin: 0 2px;
+        position: relative;
+    }
+
+    .nc-highlight .nc-text-line {
+        color: transparent;
+        opacity: 1;
+        transform: none;
+    }
+
+    .nc-text-ani {
+        -webkit-background-clip: text;
+        background-clip: text;
+        background-image: linear-gradient(#ffffff, #ffffff);
+        background-repeat: no-repeat;
+        background-size: 0 100%;
+        box-decoration-break: clone;
+        color: #ffffff;
+        display: inline-block;
+        left: 3%;
+        padding: 0 4px;
+        position: relative;
+        transition: left 0.35s ease, background-size 0.35s ease;
+        -webkit-text-fill-color: transparent;
+        z-index: 2;
+    }
+
+    .contact-build-ani {
+        font-family: "PP Mondwest", serif;
+        font-weight: 400;
+        font-style: italic;
+    }
+
+    .nc-high-grey,
+    .nc-high-blue {
+        backface-visibility: hidden;
+        display: block;
+        inset: 0;
+        position: absolute;
+        transform: translateZ(0);
+        transition: width 0.35s ease;
+        width: 0;
+        z-index: 0;
+    }
+
+    .nc-high-grey {
+        background: #979797;
+    }
+
+    .nc-high-blue {
+        background: var(--color-blue);
+    }
+
+    .contact-card-wrap.is-visible .nc-high-grey {
+        width: 100%;
+        transition-delay: 0.05s;
+    }
+
+    .contact-card-wrap.is-visible .nc-high-blue {
+        width: 100%;
+        transition-delay: 0.2s;
+    }
+
+    .contact-card-wrap.is-visible .nc-text-ani {
+        background-size: 100% 100%;
+        left: 0;
+        transition-delay: 0.12s;
+    }
+
+    .contact-card-wrap.is-visible .contact-build-ani {
+        transition-delay: 0.34s;
+    }
+
+    .contact-flow-line {
+        opacity: 0;
+        transform: translateY(14px);
+        transition: opacity 0.42s ease, transform 0.42s ease;
+    }
+
+    .contact-card-wrap.is-visible .contact-flow-line {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .contact-flow-line-1 {
+        transition-delay: 0.48s;
+    }
+
+    .contact-flow-line-2 {
+        transition-delay: 0.58s;
+    }
+
+    .contact-flow-line-3 {
+        transition-delay: 0.68s;
+    }
+
+    .contact-flow-line-4 {
+        transition-delay: 0.78s;
+    }
+
+    .contact-card-copy {
+        margin: 0.52rem 0 0;
+        font-family: "Zalando Sans", sans-serif;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+    }
+
+    .contact-card-meta {
+        margin: 0.5rem 0 0;
+        font-family: "Zalando Sans", sans-serif;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+    }
+
+    .contact-card-email {
+        display: inline-block;
+        margin-top: 0.2rem;
+        color: var(--color-blue);
+        font-family: "Zalando Sans", sans-serif;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        text-decoration: none;
+        border-bottom: 1px solid rgba(25, 0, 255, 0.35);
+        transition: border-bottom-color 0.25s ease, color 0.25s ease;
+    }
+
+    .contact-card-email:hover {
+        border-bottom-color: var(--color-blue);
+        color: #1200b7;
+    }
+
+    .contact-rotate-block {
+        margin: 1rem 0 0;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        row-gap: 0;
+    }
+
+    .contact-rotate-line {
+        margin: 0;
+        font-family: "Zalando Sans", sans-serif;
+        font-size: 26px;
+        line-height: 1.15;
+        letter-spacing: -0.01em;
+        color: rgba(25, 0, 255, 0.88);
+    }
+
+    .contact-rotate-slot {
+        display: block;
+        width: 18ch;
+        height: 1.6em;
+        text-align: right;
+        line-height: 1.28;
+        overflow: hidden;
+        contain: layout;
+    }
+
+    .contact-rotate-item {
+        display: block;
+        width: 100%;
+        text-align: right;
+        white-space: nowrap;
+        line-height: 1.28;
+        will-change: transform;
+    }
+
+    .contact-rotate-highlight {
+        margin: 0;
+        display: inline-block;
+    }
+
+    .contact-rotate-ani {
+        font-family: "PP Mondwest", serif;
+        font-style: italic;
+        font-weight: 400;
+        font-size: 26px;
+        line-height: 1.15;
+        left: 0;
+        transition: background-size 0.35s ease;
+    }
+
+    .contact-card-wrap.is-visible .contact-rotate-ani {
+        transition-delay: 0.12s;
+    }
+
+
     .bg-white {
-        background-color: white;
+        background-color: var(--color-white);
     }
 
     .animated-section-title {
@@ -500,6 +814,41 @@
         to {
             opacity: 1;
             transform: translateY(0);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .contact-card-wrap {
+            right: 1rem;
+            left: 1rem;
+            bottom: 1.1rem;
+            width: calc(100vw - 2rem);
+            max-width: calc(100vw - 2rem);
+        }
+
+        .contact-card {
+            width: 100%;
+            max-width: 100%;
+        }
+
+        .contact-card-heading {
+            font-size: 34px;
+            white-space: normal;
+        }
+
+        .contact-card-copy,
+        .contact-card-meta,
+        .contact-card-email,
+        .contact-rotate-line {
+            font-size: 20px;
+        }
+
+        .contact-rotate-ani {
+            font-size: 20px;
+        }
+
+        .contact-rotate-slot {
+            width: 12ch;
         }
     }
     

@@ -619,7 +619,7 @@
 </script>
 
 <!-- Top-left title (appears on slide 1+) -->
-{#if currentSlide >= 1 || topLeftTravelVisible}
+{#if activeSection !== 'footer' && (currentSlide >= 1 || topLeftTravelVisible)}
     <div 
         class="top-left-title"
         style="
@@ -654,98 +654,100 @@
     </div>
 {/if}
 
-<div 
-    class="menu-container" 
-    in:fade={{ duration: 850 }}
-    style="
-        position: fixed;
-        {currentSlide === 0 ? `left: ${containerX.current}%; top: ${containerY.current}%; bottom: auto; transform: translate(-50%, -50%);` : 'left: 2rem; top: calc(100% - 2rem); bottom: auto; transform: translate(0, -100%);'}
-        z-index: 100;
-        transition: {getMenuContainerTransition()};
-    "
->
-    <!-- Gradient blur backdrop -->
-    {#if currentSlide === 10}
-        <div class="blur-backdrop"></div>
-        <div class="white-glow"></div>
-    {/if}
-
-    <div
-        class="min-w-[20em] index-shell"
-        class:py-[0.875em]={currentSlide === 0}
-        class:pt-[0.875em]={currentSlide !== 0}
-        class:pb-0={currentSlide !== 0}
-        class:px-[1.125em]={currentSlide === 0}
-        in:fly={{ y: -40, duration: 1000 }}
-        style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease; position: relative; z-index: 2;"
+{#if activeSection !== 'footer'}
+    <div 
+        class="menu-container" 
+        in:fade={{ duration: 850 }}
+        style="
+            position: fixed;
+            {currentSlide === 0 ? `left: ${containerX.current}%; top: ${containerY.current}%; bottom: auto; transform: translate(-50%, -50%);` : 'left: 2rem; top: calc(100% - 2rem); bottom: auto; transform: translate(0, -100%);'}
+            z-index: 100;
+            transition: {getMenuContainerTransition()};
+        "
     >
-        <div class="home-stage">
-            <div 
-                class="zalando text-[2em] hero-name"
-                class:centered={currentSlide === 0 && !homeNameAtTop && !homeRecentering}
-                class:at-top={currentSlide === 0 && homeNameAtTop && !homeRecentering}
-                class:visible={currentSlide === 0 && homeNameVisible && !homeRecentering}
-                class:non-home={currentSlide !== 0}
-                style="
-                    line-height:1em;
-                    letter-spacing:-0.08em;
-                    font-weight:{homeNameWeight};
-                    color: white;
-                "
-            >
-                Tejas Kamal <br />Sahoo
-            </div>
+        <!-- Gradient blur backdrop -->
+        {#if currentSlide === 10}
+            <div class="blur-backdrop"></div>
+            <div class="white-glow"></div>
+        {/if}
 
-            <div
-                class="home-details"
-                class:visible={currentSlide !== 0 || homeTaglineVisible || homeIndexVisible}
-                class:home-slide={currentSlide === 0}
-                class:docked-bottom={currentSlide > 1}
-            >
-                <div class="home-tagline" style="opacity: {currentSlide === 0 && homeTaglineVisible && homeTaglineReady ? 1 : 0}; pointer-events: none;">
-                    <p class="mondwest pt-[2em] text-[1.125em] text-white">I Build. I Create.</p>
+        <div
+            class="min-w-[20em] index-shell"
+            class:py-[0.875em]={currentSlide === 0}
+            class:pt-[0.875em]={currentSlide !== 0}
+            class:pb-0={currentSlide !== 0}
+            class:px-[1.125em]={currentSlide === 0}
+            in:fly={{ y: -40, duration: 1000 }}
+            style="background-color: rgba(25, 0, 255, {bgOpacity.current}); backdrop-filter:blur({bgBlur.current}px); transition: all 0.6s ease; position: relative; z-index: 2;"
+        >
+            <div class="home-stage">
+                <div 
+                    class="zalando text-[2em] hero-name"
+                    class:centered={currentSlide === 0 && !homeNameAtTop && !homeRecentering}
+                    class:at-top={currentSlide === 0 && homeNameAtTop && !homeRecentering}
+                    class:visible={currentSlide === 0 && homeNameVisible && !homeRecentering}
+                    class:non-home={currentSlide !== 0}
+                    style="
+                        line-height:1em;
+                        letter-spacing:-0.08em;
+                        font-weight:{homeNameWeight};
+                        color: white;
+                    "
+                >
+                    Tejas Kamal <br />Sahoo
                 </div>
 
-                <div id="item-menu">
-                    <ul class="list-none p-0">
-                        {#each menuItems as item, index (item.id)}
-                            <li
-                                class="w-full home-index-item"
-                                style="
-                                    opacity: {getMenuItemOpacity(index)};
-                                    pointer-events: {canInteractWithMenuItem(index) ? 'auto' : 'none'};
-                                    transform: translate3d({indexItemXOffsets[index]}px, 0, 0);
-                                    transition: transform {indexItemInstantSet[index] ? 0 : INDEX_LEFT_CASCADE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
-                                "
-                            >
-                                <button 
-                                    class="zalando text-[1em] w-full flex items-center transition-opacity cursor-pointer bg-transparent border-none text-left"
-                                    onclick={() => scrollToSection(item.id)}
+                <div
+                    class="home-details"
+                    class:visible={currentSlide !== 0 || homeTaglineVisible || homeIndexVisible}
+                    class:home-slide={currentSlide === 0}
+                    class:docked-bottom={currentSlide > 1}
+                >
+                    <div class="home-tagline" style="opacity: {currentSlide === 0 && homeTaglineVisible && homeTaglineReady ? 1 : 0}; pointer-events: none;">
+                        <p class="mondwest pt-[2em] text-[1.125em] text-white">I Build. I Create.</p>
+                    </div>
+
+                    <div id="item-menu">
+                        <ul class="list-none p-0">
+                            {#each menuItems as item, index (item.id)}
+                                <li
+                                    class="w-full home-index-item"
                                     style="
-                                        font-weight:{itemWeights[item.id]};
-                                        opacity: {currentSlide === 0 ? 1 : getItemOpacity(item.id)};
-                                        gap: {MENU_ITEM_GAP.current}rem;
-                                        transition: opacity 0.3s ease, color 0.3s ease;
-                                        color: {activeSection === '' || activeSection === 'home' ? 'white' : 'var(--color-blue)'};
+                                        opacity: {getMenuItemOpacity(index)};
+                                        pointer-events: {canInteractWithMenuItem(index) ? 'auto' : 'none'};
+                                        transform: translate3d({indexItemXOffsets[index]}px, 0, 0);
+                                        transition: transform {indexItemInstantSet[index] ? 0 : INDEX_LEFT_CASCADE_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1), opacity 0.5s ease;
                                     "
-                                    onmouseenter={() => handleMouseEnter(item.id)}
-                                    onmouseleave={handleMouseLeave}
                                 >
-                                    <span style="flex: 1;">
-                                        {item.label}
-                                    </span>
-                                    <span class="mondwest">
-                                        {item.roman}
-                                    </span>
-                                </button>
-                            </li>
-                        {/each}
-                    </ul>
+                                    <button 
+                                        class="zalando text-[1em] w-full flex items-center transition-opacity cursor-pointer bg-transparent border-none text-left"
+                                        onclick={() => scrollToSection(item.id)}
+                                        style="
+                                            font-weight:{itemWeights[item.id]};
+                                            opacity: {currentSlide === 0 ? 1 : getItemOpacity(item.id)};
+                                            gap: {MENU_ITEM_GAP.current}rem;
+                                            transition: opacity 0.3s ease, color 0.3s ease;
+                                            color: {activeSection === '' || activeSection === 'home' ? 'white' : 'var(--color-blue)'};
+                                        "
+                                        onmouseenter={() => handleMouseEnter(item.id)}
+                                        onmouseleave={handleMouseLeave}
+                                    >
+                                        <span style="flex: 1;">
+                                            {item.label}
+                                        </span>
+                                        <span class="mondwest">
+                                            {item.roman}
+                                        </span>
+                                    </button>
+                                </li>
+                            {/each}
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
+{/if}
 
 <style>
     .home-stage {

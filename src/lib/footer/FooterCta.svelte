@@ -69,11 +69,10 @@
 
         <div class="cta-button-wrapper nc-padding-bottom-m-s nc-padding-top-s contact-link" class:is-visible={ctaLinkVisible} bind:this={ctaLink}>
             <a
-                href="/"
+                href="mailto:tejas.kamal.sahu@gmail.com"
                 class="cta-button black"
                 class:is-hovered={ctaHovered}
                 aria-label={buttonText}
-                onclick={(e) => e.preventDefault()}
                 onmouseenter={() => (ctaHovered = true)}
                 onmouseleave={() => (ctaHovered = false)}
             >
@@ -104,11 +103,11 @@
     }
 
     .nc-bg-grey-l {
-        background: #e6e6e6;
+        background: #ffffff;
     }
 
     .footer-cta-section {
-        background: #e6e6e6;
+        background: #ffffff;
         position: relative;
     }
 
@@ -231,11 +230,11 @@
     .nc-text-ani {
         -webkit-background-clip: text;
         background-clip: text;
-        background-image: linear-gradient(#e6e6e6, #e6e6e6);
+        background-image: linear-gradient(#ffffff, #ffffff);
         background-repeat: no-repeat;
         background-size: 0 100%;
         box-decoration-break: clone;
-        color: #e6e6e6;
+        color: #ffffff;
         display: inline-block;
         left: 3%;
         padding: 0 2px;

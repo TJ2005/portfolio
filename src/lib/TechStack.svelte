@@ -108,7 +108,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #ffffff;
+    background: var(--color-white);
     border-radius: 14px;
     padding: 0.9rem;
 }

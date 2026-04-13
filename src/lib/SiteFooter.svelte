@@ -7,12 +7,12 @@
     let year = new Date().getFullYear();
     const motionEnabled = true;
 
-    const homeHref = "/";
+    const homeHref = "#home";
     const studioHref = "/";
-    const aboutHref = "/";
-    const contactHref = "/";
+    const aboutHref = "#about";
+    const contactHref = "#contact";
     const linkedinHref = "/";
-    const notesHref = "/";
+    const notesHref = "https://notes.tj25.tech";
     const instagramHref = "/";
 
     const MOUSE_STEP = 80;
@@ -87,6 +87,18 @@
         timeline.to(target, { width: "auto", duration: 0 });
     }
 
+    function scrollToSection(sectionId: string) {
+        const element = document.getElementById(sectionId);
+        if (element) {
+            element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+    }
+
+    function handleSectionLinkClick(event: MouseEvent, sectionId: string) {
+        event.preventDefault();
+        scrollToSection(sectionId);
+    }
+
     onMount(() => {
         scrollContainerEl = document.querySelector(".snap-container");
 
@@ -134,7 +146,7 @@
 </script>
 
 <section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue" bind:this={footerSectionEl}>
-    <FooterCta line1="Have an Idea?" line2="Let's Make it Happen." buttonText="Get in touch" {motionEnabled} />
+    <FooterCta line1="Let's get in touch" line2="Directly email me!" buttonText="Directly email me!" {motionEnabled} />
 
     <div
         class="footer-ani-wrapper nc-padding-x-m nc-padding-bottom-s"
@@ -154,7 +166,7 @@
                                 <a
                                     href={homeHref}
                                     class="nc-h1 nc-margin-bottom-s footer-link"
-                                    onclick={(e) => e.preventDefault()}
+                                    onclick={(e) => handleSectionLinkClick(e, "home")}
                                     onmouseenter={(e) => scrambleHover(e, "Home")}
                                 ><span class="hover-scramble">Home</span></a><br />
                                 <a
@@ -168,13 +180,13 @@
                                 <a
                                     href={aboutHref}
                                     class="nc-h1 nc-margin-bottom-s footer-link"
-                                    onclick={(e) => e.preventDefault()}
+                                    onclick={(e) => handleSectionLinkClick(e, "about")}
                                     onmouseenter={(e) => scrambleHover(e, "About")}
                                 ><span class="hover-scramble">About</span></a><br />
                                 <a
                                     href={contactHref}
                                     class="nc-h1 footer-link"
-                                    onclick={(e) => e.preventDefault()}
+                                    onclick={(e) => handleSectionLinkClick(e, "contact")}
                                     onmouseenter={(e) => scrambleHover(e, "Contact")}
                                 ><span class="hover-scramble">Contact</span></a>
                             </div>
@@ -190,8 +202,9 @@
                                 <a
                                     class="nc-h1 footer-link"
                                     href={notesHref}
-                                    onclick={(e) => e.preventDefault()}
                                     onmouseenter={(e) => scrambleHover(e, "Notes")}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                 >
                                     <div class="link-text"><span class="hover-scramble">Notes</span></div>
                                 </a>
