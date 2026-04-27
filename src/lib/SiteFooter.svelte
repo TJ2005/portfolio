@@ -1,7 +1,6 @@
 <script lang="ts">
     import { onDestroy, onMount } from "svelte";
     import { gsap } from "gsap";
-    import { ScrambleTextPlugin } from "gsap/ScrambleTextPlugin";
     import FooterCta from "$lib/footer/FooterCta.svelte";
 
     let year = new Date().getFullYear();
@@ -21,12 +20,48 @@
     let footerWrapEl: HTMLDivElement | undefined;
     let footerMoveEl: HTMLDivElement | undefined;
     let footerEntered = $state(false);
+    let scramblePluginReady = $state(false);
     let lastX: number | null = null;
     let scrollContainerEl: HTMLDivElement | null = null;
     const prefersReducedMotion =
         typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    gsap.registerPlugin(ScrambleTextPlugin);
+    function trackFooterSection(node: HTMLElement) {
+        footerSectionEl = node;
+        return () => {
+            if (footerSectionEl === node) footerSectionEl = undefined;
+        };
+    }
+
+    function trackFooterWrap(node: HTMLDivElement) {
+        footerWrapEl = node;
+        return () => {
+            if (footerWrapEl === node) footerWrapEl = undefined;
+        };
+    }
+
+    function trackFooterMove(node: HTMLDivElement) {
+        footerMoveEl = node;
+        return () => {
+            if (footerMoveEl === node) footerMoveEl = undefined;
+        };
+    }
+
+    async function registerScramblePlugin() {
+        try {
+            const module = (await import("gsap/ScrambleTextPlugin")) as {
+                ScrambleTextPlugin?: unknown;
+                default?: unknown;
+            };
+            const scramblePlugin = module.ScrambleTextPlugin ?? module.default;
+            if (scramblePlugin) {
+                gsap.registerPlugin(scramblePlugin as any);
+                scramblePluginReady = true;
+            }
+        } catch (error) {
+            console.warn("GSAP ScrambleTextPlugin failed to load", error);
+        }
+    }
 
     function isMobileViewport() {
         return window.matchMedia("(max-width: 768px)").matches;
@@ -75,7 +110,7 @@
     }
 
     function scrambleHover(event: MouseEvent, text: string) {
-        if (prefersReducedMotion) return;
+        if (prefersReducedMotion || !scramblePluginReady) return;
 
         const currentTarget = event.currentTarget as HTMLElement | null;
         if (!currentTarget) return;
@@ -100,6 +135,8 @@
     }
 
     onMount(() => {
+        void registerScramblePlugin();
+
         scrollContainerEl = document.querySelector(".snap-container");
 
         const onScroll = () => applyFooterTransform();
@@ -145,17 +182,17 @@
     });
 </script>
 
-<section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue" bind:this={footerSectionEl}>
+<section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue" {@attach trackFooterSection}>
     <FooterCta line1="Let's get in touch" line2="Directly email me!" buttonText="Directly email me!" {motionEnabled} />
 
     <div
         class="footer-ani-wrapper nc-padding-x-m nc-padding-bottom-s"
         class:is-entered={footerEntered}
-        bind:this={footerWrapEl}
+        {@attach trackFooterWrap}
         role="presentation"
         onmousemove={handleMouseMove}
     >
-        <div class="footer-ani" bind:this={footerMoveEl}>
+        <div class="footer-ani" {@attach trackFooterMove}>
             <div class="nc-padding-y-l footer-main-wrap">
                 <div class="row row-right footer-nav-row">
                     <div class="col-6 col-12-sm"></div>
