@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { tick } from 'svelte';
+
 	interface Props {
 		visible?: boolean;
 	}
@@ -7,12 +9,67 @@
 
 	const heyChars = 'Hey,'.split('');
 	const nameChars = "I'm Tejas Sahoo".split('');
+
+	let viewportWidth = $state(0);
+	let viewportHeight = $state(0);
+	let introTextWrap = $state<HTMLDivElement>();
+	let nameLine = $state<HTMLDivElement>();
+	let aboutContent = $state<HTMLDivElement>();
+	let mobileNameSlideY = $state('15vh');
+	let mobileNameArrived = $state(false);
+
+	async function updateMobileNameSlide() {
+		if (typeof window === 'undefined') return;
+
+		await tick();
+
+		if (!introTextWrap || !nameLine || !aboutContent || viewportWidth > 768) {
+			mobileNameSlideY = '15vh';
+			return;
+		}
+
+		const introRect = introTextWrap.getBoundingClientRect();
+		const contentRect = aboutContent.getBoundingClientRect();
+		const nameTop = introRect.top + nameLine.offsetTop;
+		const nameHeight = nameLine.offsetHeight;
+		const targetScale = 0.84;
+		const landingGap = Math.min(16, Math.max(8, viewportHeight * 0.015));
+		const distance = contentRect.top - nameTop - nameHeight * targetScale - landingGap;
+
+		mobileNameSlideY = `${Math.max(0, Math.round(distance))}px`;
+	}
+
+	$effect(() => {
+		const isMobileReady =
+			visible && viewportWidth <= 768 && Boolean(introTextWrap && nameLine && aboutContent);
+
+		void updateMobileNameSlide();
+
+		if (!isMobileReady) {
+			mobileNameArrived = false;
+			return;
+		}
+
+		mobileNameArrived = false;
+
+		const timeout = setTimeout(() => {
+			void updateMobileNameSlide().then(() => {
+				requestAnimationFrame(() => {
+					mobileNameArrived = true;
+				});
+			});
+		}, 4150);
+
+		return () => clearTimeout(timeout);
+	});
 </script>
 
+<svelte:window bind:innerWidth={viewportWidth} bind:innerHeight={viewportHeight} />
+
 {#if visible}
-	<div class="about-stage">
+	<div class="about-stage" style="--mobile-name-slide-y: {mobileNameSlideY};">
 		<div class="intro-layer">
-			<div class="intro-text-wrap">
+			<div class="intro-text-wrap" bind:this={introTextWrap}>
 				<div class="hey-line zalando">
 					{#each heyChars as char, i (i)}
 						<span class="char" style="animation-delay: {0.2 + i * 0.08}s;"
@@ -22,7 +79,11 @@
 				</div>
 
 				<div class="name-mask">
-					<div class="name-line zalando persistent-name">
+					<div
+						class="name-line zalando persistent-name"
+						class:mobile-arrived={mobileNameArrived}
+						bind:this={nameLine}
+					>
 						{#each nameChars as char, i (i)}
 							<span class="char" style="animation-delay: {2.2 + i * 0.055}s;"
 								>{char === ' ' ? '\u00A0' : char}</span
@@ -33,7 +94,7 @@
 			</div>
 		</div>
 
-		<div class="about-content">
+		<div class="about-content" bind:this={aboutContent}>
 			<p class="zalando intro-line">I'm currently studying B.Tech, focused on cybersecurity.</p>
 
 			<p class="zalando paragraph">
@@ -233,45 +294,56 @@
 			transform: translateY(0) scale(1);
 		}
 		to {
-			transform: translateY(15vh) scale(0.84);
+			transform: translateY(var(--mobile-name-slide-y, 15vh)) scale(0.84);
 		}
 	}
 
 	@media (max-width: 768px) {
+		.persistent-name {
+			animation: none;
+			transform: translateY(0) scale(1);
+			transition: transform 0.92s cubic-bezier(0.22, 1, 0.36, 1);
+		}
+
+		.persistent-name.mobile-arrived {
+			transform: translateY(var(--mobile-name-slide-y, 15vh)) scale(0.84);
+		}
+
 		.intro-layer {
-			justify-content: flex-start;
-			padding: 0 1rem 0 3.4rem;
+			align-items: center;
+			justify-content: flex-end;
+			padding: 0 1rem 0 2.5rem;
 		}
 
 		.intro-text-wrap {
-			width: calc(100vw - 4.4rem);
-			align-items: flex-start;
+			width: calc(100vw - 3.5rem);
+			align-items: flex-end;
 		}
 
 		.hey-line {
-			justify-content: flex-start;
+			justify-content: flex-end;
 			font-size: clamp(58px, 18vw, 82px);
 			letter-spacing: -0.06em;
 		}
 
 		.name-mask {
-			justify-content: flex-start;
+			justify-content: flex-end;
 		}
 
 		.name-line {
-			justify-content: flex-start;
-			text-align: left;
+			justify-content: flex-end;
+			text-align: right;
 			font-size: clamp(29px, 9vw, 42px);
 		}
 
 		.about-content {
-			left: 3.4rem;
+			left: 2.5rem;
 			right: 1rem;
 			bottom: 0;
 			width: auto;
 			max-height: calc(100svh - 10rem);
 			padding-bottom: 1rem;
-			text-align: left;
+			text-align: right;
 			scrollbar-width: none;
 		}
 

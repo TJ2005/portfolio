@@ -1,8 +1,16 @@
 <script lang="ts">
+	import {
+		deviceTilt,
+		requestDeviceTiltPermission,
+		startDeviceTilt,
+		type DeviceTiltState
+	} from '$lib/deviceTilt';
+	import { onMount } from 'svelte';
+
 	interface ParallaxLayer {
 		id: string;
 		src: string;
-		depth: number;  // Changed from speed to depth
+		depth: number; // Changed from speed to depth
 		zIndex: number;
 		alt?: string;
 	}
@@ -20,12 +28,18 @@
 	let containerRef: HTMLDivElement;
 	let viewportWidth = $state(1200);
 	let isMobile = $derived(viewportWidth <= 768);
-	let gyroPermissionRequired = $state(false);
-	let gyroPermissionGranted = $state(true);
+	let tilt = $state<DeviceTiltState>({
+		x: 0,
+		y: 0,
+		supported: false,
+		permissionRequired: false,
+		permissionGranted: false,
+		active: false
+	});
 
 	function handleMouseMove(event: MouseEvent) {
 		if (!containerRef || !enabled) return;
-		
+
 		const rect = containerRef.getBoundingClientRect();
 		const centerX = rect.left + rect.width / 2;
 		const centerY = rect.top + rect.height / 2;
@@ -35,59 +49,13 @@
 		mouseY = (event.clientY - centerY) / (rect.height / 2);
 	}
 
-	function clamp(value: number, min: number, max: number) {
-		return Math.min(max, Math.max(min, value));
-	}
+	onMount(() => {
+		const unsubscribe = deviceTilt.subscribe((value) => {
+			tilt = value;
+		});
+		startDeviceTilt();
 
-	function handleDeviceOrientation(event: DeviceOrientationEvent) {
-		if (!enabled || !isMobile) return;
-		if (event.gamma === null || event.beta === null) return;
-
-		// Normalize device tilt so layers move within the same -1..1 range as mouse input.
-		mouseX = clamp(event.gamma / 35, -1, 1);
-		mouseY = clamp(event.beta / 45, -1, 1);
-	}
-
-	async function requestGyroPermission() {
-		if (typeof window === "undefined") return;
-
-		const orientationWithPermission =
-			typeof (window as Window & { DeviceOrientationEvent?: typeof DeviceOrientationEvent }).DeviceOrientationEvent !== "undefined" &&
-			typeof (DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> }).requestPermission === "function";
-
-		if (!orientationWithPermission) {
-			gyroPermissionGranted = true;
-			gyroPermissionRequired = false;
-			return;
-		}
-
-		try {
-			const permission = await (DeviceOrientationEvent as typeof DeviceOrientationEvent & {
-				requestPermission: () => Promise<"granted" | "denied">;
-			}).requestPermission();
-			gyroPermissionGranted = permission === "granted";
-			gyroPermissionRequired = permission !== "granted";
-		} catch {
-			gyroPermissionGranted = false;
-			gyroPermissionRequired = true;
-		}
-	}
-
-	$effect(() => {
-		if (typeof window === "undefined") return;
-
-		if (!isMobile) {
-			gyroPermissionRequired = false;
-			gyroPermissionGranted = true;
-			return;
-		}
-
-		const orientationWithPermission =
-			typeof (window as Window & { DeviceOrientationEvent?: typeof DeviceOrientationEvent }).DeviceOrientationEvent !== "undefined" &&
-			typeof (DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> }).requestPermission === "function";
-
-		gyroPermissionRequired = orientationWithPermission;
-		gyroPermissionGranted = !orientationWithPermission;
+		return unsubscribe;
 	});
 
 	$effect(() => {
@@ -98,14 +66,10 @@
 		}
 
 		if (isMobile) {
-			if (gyroPermissionRequired && !gyroPermissionGranted) {
-				return;
-			}
-
-			window.addEventListener('deviceorientation', handleDeviceOrientation, true);
-			return () => {
-				window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
-			};
+			startDeviceTilt();
+			mouseX = tilt.permissionGranted ? tilt.x : 0;
+			mouseY = tilt.permissionGranted ? tilt.y : 0;
+			return;
 		}
 
 		window.addEventListener('mousemove', handleMouseMove);
@@ -119,13 +83,20 @@
 		const offsetY = mouseY * maxShift * depth;
 		return `translate3d(${offsetX}px, ${offsetY}px, 0)`;
 	}
+
+	async function requestMotionPermission() {
+		await requestDeviceTiltPermission();
+		startDeviceTilt();
+	}
 </script>
 
 <svelte:window bind:innerWidth={viewportWidth} />
 
 <div bind:this={containerRef} class="parallax-container">
-	{#if isMobile && enabled && gyroPermissionRequired && !gyroPermissionGranted}
-		<button class="gyro-permission-btn" type="button" onclick={requestGyroPermission}>Enable motion</button>
+	{#if isMobile && enabled && tilt.supported && tilt.permissionRequired && !tilt.permissionGranted}
+		<button class="gyro-permission-btn" type="button" onclick={requestMotionPermission}
+			>Enable motion</button
+		>
 	{/if}
 
 	{#each layers as layer (layer.id)}
@@ -165,7 +136,7 @@
 		display: block;
 		scale: 1.2;
 	}
-	
+
 	.gradient-fade {
 		position: absolute;
 		bottom: -25vh;
@@ -187,7 +158,7 @@
 		color: var(--color-blue);
 		padding: 0.4rem 0.7rem;
 		border-radius: 999px;
-		font-family: "Zalando Sans", sans-serif;
+		font-family: 'Zalando Sans', sans-serif;
 		font-size: 0.8rem;
 		cursor: pointer;
 	}

@@ -231,6 +231,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 1 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 1 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -258,6 +259,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 3 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 3 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -285,6 +287,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 7 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 7 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -312,6 +315,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 10 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 10 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -359,6 +363,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 12 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 12 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -386,6 +391,7 @@
 			style="
                 position: fixed;
                 top: {currentSlide === 14 ? 'calc(100vh - 8rem)' : '2rem'};
+                --mobile-title-top: {currentSlide === 14 ? 'calc(100vh - 4rem)' : '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -873,8 +879,8 @@
 
 	@media (max-width: 768px) {
 		.fixed-section-title {
-			left: 3.4rem !important;
-			right: auto !important;
+			top: var(--mobile-title-top, calc(100vh - 4rem)) !important;
+			right: 2rem !important;
 			max-width: calc(100vw - 4.4rem);
 			overflow: hidden;
 		}
@@ -906,8 +912,7 @@
 
 		.experience-content,
 		.education-content {
-			left: 3.4rem !important;
-			top: 9.4rem !important;
+			left: 2.5rem !important;
 			right: 1rem !important;
 			bottom: 0 !important;
 			width: auto !important;

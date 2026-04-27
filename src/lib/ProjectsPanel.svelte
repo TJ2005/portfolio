@@ -1,4 +1,11 @@
 <script lang="ts">
+	import {
+		deviceTilt,
+		requestDeviceTiltPermission,
+		startDeviceTilt,
+		type DeviceTiltState
+	} from '$lib/deviceTilt';
+	import { onMount } from 'svelte';
 	import { cubicOut } from 'svelte/easing';
 
 	let { visible = false } = $props();
@@ -33,6 +40,16 @@
 
 	let currentPage = $state(0);
 	let dir = $state<1 | -1>(1); // 1 = forward/down, -1 = backward/up
+	let viewportWidth = $state(1200);
+	let isMobile = $derived(viewportWidth <= 768);
+	let deviceTiltState = $state<DeviceTiltState>({
+		x: 0,
+		y: 0,
+		supported: false,
+		permissionRequired: false,
+		permissionGranted: false,
+		active: false
+	});
 
 	// Reset page when section becomes invisible
 	$effect(() => {
@@ -50,7 +67,35 @@
 		tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }));
 	});
 
+	onMount(() => {
+		const unsubscribe = deviceTilt.subscribe((value) => {
+			deviceTiltState = value;
+		});
+		startDeviceTilt();
+
+		return unsubscribe;
+	});
+
+	$effect(() => {
+		if (!visible || !isMobile) return;
+
+		startDeviceTilt();
+
+		if (!deviceTiltState.permissionGranted) {
+			tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }));
+			return;
+		}
+
+		const maxTilt = 7;
+		const rx = -deviceTiltState.y * maxTilt;
+		const ry = deviceTiltState.x * maxTilt;
+
+		tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx, ry, hovering: false }));
+	});
+
 	function onMouseMove(e: MouseEvent, i: number) {
+		if (isMobile) return;
+
 		const el = e.currentTarget as HTMLElement;
 		const rect = el.getBoundingClientRect();
 		const nx = ((e.clientX - rect.left) / rect.width) * 2 - 1;
@@ -59,7 +104,13 @@
 		tilts[i] = { rx: -ny * MAX, ry: nx * MAX, hovering: true };
 	}
 	function onMouseLeave(i: number) {
+		if (isMobile) return;
 		tilts[i] = { rx: 0, ry: 0, hovering: false };
+	}
+
+	async function requestMotionPermission() {
+		await requestDeviceTiltPermission();
+		startDeviceTilt();
 	}
 
 	// ── NON-PASSIVE WHEEL LISTENER (intercepts snap scroll) ───────
@@ -127,6 +178,8 @@
 	}
 </script>
 
+<svelte:window bind:innerWidth={viewportWidth} />
+
 {#if visible}
 	<div class="projects-wrap" bind:this={container}>
 		<!-- header row -->
@@ -146,6 +199,10 @@
 					></button>
 				{/each}
 			</div>
+			{#if isMobile && deviceTiltState.supported && deviceTiltState.permissionRequired && !deviceTiltState.permissionGranted}
+				<button class="motion-button" type="button" onclick={requestMotionPermission}>Motion</button
+				>
+			{/if}
 		</div>
 
 		<!-- viewport clips the sliding grids -->
@@ -225,6 +282,17 @@
 		display: flex;
 		gap: 0.5rem;
 		align-items: center;
+	}
+
+	.motion-button {
+		border: 1px solid rgba(25, 0, 255, 0.24);
+		background: rgba(255, 255, 255, 0.9);
+		color: var(--color-blue);
+		cursor: pointer;
+		font-family: 'Zalando Sans', sans-serif;
+		font-size: 12px;
+		line-height: 1;
+		padding: 0.4rem 0.55rem;
 	}
 	.dot {
 		width: 7px;
@@ -336,7 +404,7 @@
 
 	@media (max-width: 768px) {
 		.projects-wrap {
-			left: 3.4rem;
+			left: 2.5rem;
 			right: 1rem;
 			bottom: 0;
 			width: auto;
@@ -379,7 +447,6 @@
 		.card {
 			min-height: 13.5rem;
 			border-radius: 18px;
-			transform: none !important;
 		}
 
 		.card-visual {
