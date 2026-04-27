@@ -25,6 +25,7 @@
 		'next Big Thing',
 		'Tech Solution'
 	];
+	const MIN_LOADER_DURATION = 5000;
 
 	// Parallax layer configuration (cursor-based)
 	const parallaxLayers = [
@@ -58,6 +59,26 @@
 		}
 	];
 
+	const techStackLogoSources = [
+		'/Tech Stack Logos/angularjs 1.png',
+		'/Tech Stack Logos/AWS.png',
+		'/Tech Stack Logos/Bootstrap.png',
+		'/Tech Stack Logos/cloudflare.png',
+		'/Tech Stack Logos/Docker.png',
+		'/Tech Stack Logos/Framer.png',
+		'/Tech Stack Logos/Git.png',
+		'/Tech Stack Logos/Mongodb .png',
+		'/Tech Stack Logos/React-icon.svg 1-1.png',
+		'/Tech Stack Logos/Svelte.png',
+		'/Tech Stack Logos/Tailwind.png',
+		'/Tech Stack Logos/Vue.js_Logo_2.svg 1.png'
+	];
+
+	const preloadImageSources = [
+		...parallaxLayers.map((layer) => layer.src),
+		...techStackLogoSources
+	];
+
 	let currentSlide = $state(0);
 	let previousSlide = $state(0);
 	let activeSection = $state('home');
@@ -65,6 +86,7 @@
 	let showLoader = $state(true);
 	let startMainAnimation = $state(false);
 	let assetsLoaded = $state(false);
+	let loaderMinimumElapsed = $state(false);
 	let contactPhraseIndex = $state(0);
 
 	// Experience data
@@ -138,33 +160,63 @@
 	];
 
 	function hideLoader() {
+		if (!assetsLoaded || !loaderMinimumElapsed || !showLoader) return;
+
 		showLoader = false;
 		setTimeout(() => {
 			startMainAnimation = true;
 		}, 300);
 	}
 
+	function preloadImage(src: string, timeoutMs = 20000) {
+		return new Promise<void>((resolve) => {
+			const img = new Image();
+			let settled = false;
+			const timeout = setTimeout(finish, timeoutMs);
+
+			function finish() {
+				if (settled) return;
+				settled = true;
+				clearTimeout(timeout);
+				resolve();
+			}
+
+			img.decoding = 'async';
+			img.onload = () => {
+				if (typeof img.decode === 'function') {
+					void img
+						.decode()
+						.catch(() => undefined)
+						.finally(finish);
+				} else {
+					finish();
+				}
+			};
+			img.onerror = finish;
+			img.src = src;
+		});
+	}
+
+	async function preloadVisualAssets() {
+		await Promise.all(preloadImageSources.map((src) => preloadImage(src)));
+	}
+
 	onMount(() => {
-		const imagesToPreload = [
-			'/layers/Layer 0.png',
-			'/layers/Layer 1.png',
-			'/layers/Layer 2.png',
-			'/layers/Layer 3.png'
-		];
-		Promise.all(
-			imagesToPreload.map((src) => {
-				return new Promise<void>((resolve) => {
-					const img = new Image();
-					img.src = src;
-					img.onload = () => resolve();
-					img.onerror = () => {
-						resolve();
-					};
-				});
-			})
-		).then(() => {
+		const minimumLoaderTimer = setTimeout(() => {
+			loaderMinimumElapsed = true;
+		}, MIN_LOADER_DURATION);
+
+		void preloadVisualAssets().then(() => {
 			assetsLoaded = true;
 		});
+
+		return () => clearTimeout(minimumLoaderTimer);
+	});
+
+	$effect(() => {
+		if (assetsLoaded && loaderMinimumElapsed) {
+			hideLoader();
+		}
 	});
 
 	onMount(() => {
@@ -211,11 +263,13 @@
 			activeSection = nextSection.id;
 		}
 	}
-
-	setTimeout(() => {
-		hideLoader();
-	}, 5000);
 </script>
+
+<svelte:head>
+	{#each preloadImageSources as src (src)}
+		<link rel="preload" as="image" href={src} />
+	{/each}
+</svelte:head>
 
 {#if showLoader}
 	<div transition:fade={{ duration: 600, easing: cubicOut }}>
