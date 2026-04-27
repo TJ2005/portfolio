@@ -18,6 +18,10 @@
 	let mouseX = $state(0);
 	let mouseY = $state(0);
 	let containerRef: HTMLDivElement;
+	let viewportWidth = $state(1200);
+	let isMobile = $derived(viewportWidth <= 768);
+	let gyroPermissionRequired = $state(false);
+	let gyroPermissionGranted = $state(true);
 
 	function handleMouseMove(event: MouseEvent) {
 		if (!containerRef || !enabled) return;
@@ -31,11 +35,77 @@
 		mouseY = (event.clientY - centerY) / (rect.height / 2);
 	}
 
+	function clamp(value: number, min: number, max: number) {
+		return Math.min(max, Math.max(min, value));
+	}
+
+	function handleDeviceOrientation(event: DeviceOrientationEvent) {
+		if (!enabled || !isMobile) return;
+		if (event.gamma === null || event.beta === null) return;
+
+		// Normalize device tilt so layers move within the same -1..1 range as mouse input.
+		mouseX = clamp(event.gamma / 35, -1, 1);
+		mouseY = clamp(event.beta / 45, -1, 1);
+	}
+
+	async function requestGyroPermission() {
+		if (typeof window === "undefined") return;
+
+		const orientationWithPermission =
+			typeof (window as Window & { DeviceOrientationEvent?: typeof DeviceOrientationEvent }).DeviceOrientationEvent !== "undefined" &&
+			typeof (DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> }).requestPermission === "function";
+
+		if (!orientationWithPermission) {
+			gyroPermissionGranted = true;
+			gyroPermissionRequired = false;
+			return;
+		}
+
+		try {
+			const permission = await (DeviceOrientationEvent as typeof DeviceOrientationEvent & {
+				requestPermission: () => Promise<"granted" | "denied">;
+			}).requestPermission();
+			gyroPermissionGranted = permission === "granted";
+			gyroPermissionRequired = permission !== "granted";
+		} catch {
+			gyroPermissionGranted = false;
+			gyroPermissionRequired = true;
+		}
+	}
+
+	$effect(() => {
+		if (typeof window === "undefined") return;
+
+		if (!isMobile) {
+			gyroPermissionRequired = false;
+			gyroPermissionGranted = true;
+			return;
+		}
+
+		const orientationWithPermission =
+			typeof (window as Window & { DeviceOrientationEvent?: typeof DeviceOrientationEvent }).DeviceOrientationEvent !== "undefined" &&
+			typeof (DeviceOrientationEvent as typeof DeviceOrientationEvent & { requestPermission?: () => Promise<"granted" | "denied"> }).requestPermission === "function";
+
+		gyroPermissionRequired = orientationWithPermission;
+		gyroPermissionGranted = !orientationWithPermission;
+	});
+
 	$effect(() => {
 		if (!enabled) {
 			mouseX = 0;
 			mouseY = 0;
 			return;
+		}
+
+		if (isMobile) {
+			if (gyroPermissionRequired && !gyroPermissionGranted) {
+				return;
+			}
+
+			window.addEventListener('deviceorientation', handleDeviceOrientation, true);
+			return () => {
+				window.removeEventListener('deviceorientation', handleDeviceOrientation, true);
+			};
 		}
 
 		window.addEventListener('mousemove', handleMouseMove);
@@ -51,7 +121,13 @@
 	}
 </script>
 
+<svelte:window bind:innerWidth={viewportWidth} />
+
 <div bind:this={containerRef} class="parallax-container">
+	{#if isMobile && enabled && gyroPermissionRequired && !gyroPermissionGranted}
+		<button class="gyro-permission-btn" type="button" onclick={requestGyroPermission}>Enable motion</button>
+	{/if}
+
 	{#each layers as layer (layer.id)}
 		<div
 			class="parallax-layer"
@@ -99,5 +175,20 @@
 		background: linear-gradient(to bottom, transparent 0%, white 100%);
 		pointer-events: none;
 		z-index: 50;
+	}
+
+	.gyro-permission-btn {
+		position: absolute;
+		top: 1rem;
+		right: 1rem;
+		z-index: 80;
+		border: 1px solid rgba(25, 0, 255, 0.32);
+		background: rgba(255, 255, 255, 0.92);
+		color: var(--color-blue);
+		padding: 0.4rem 0.7rem;
+		border-radius: 999px;
+		font-family: "Zalando Sans", sans-serif;
+		font-size: 0.8rem;
+		cursor: pointer;
 	}
 </style>
