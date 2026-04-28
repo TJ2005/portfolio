@@ -672,7 +672,7 @@
 	</div>
 {/if}
 
-{#if activeSection !== 'footer'}
+{#if activeSection !== 'footer' && !isMobile}
 	<div
 		class="menu-container"
 		in:fade={{ duration: 850 }}
