@@ -672,7 +672,7 @@
 	</div>
 {/if}
 
-{#if activeSection !== 'footer' && !isMobile}
+{#if activeSection !== 'footer' && (!isMobile || currentSlide === 0)}
 	<div
 		class="menu-container"
 		in:fade={{ duration: 850 }}
@@ -955,14 +955,14 @@
 
 	@media (max-width: 768px) {
 		.index-shell.mobile-shell {
-			min-width: min(84vw, 22rem);
-			padding: 1rem 1rem 0.75rem;
-			background-color: rgba(25, 0, 255, 0.9) !important;
-			backdrop-filter: blur(8px);
+			width: min(calc(100vw - 2rem), 19rem);
+			max-width: calc(100vw - 2rem);
+			min-width: 0;
+			padding: 0.9rem 1rem 0.65rem;
 		}
 
 		.index-shell.mobile-shell .home-stage {
-			min-height: min(70svh, 29rem);
+			min-height: 14.5rem;
 		}
 
 		.index-shell.mobile-shell .hero-name {
@@ -975,11 +975,11 @@
 		}
 
 		.index-shell.mobile-shell .home-details.home-slide {
-			padding-top: clamp(4.4rem, 24vw, 6rem);
+			padding-top: clamp(3.1rem, 17vw, 4.35rem);
 		}
 
 		.index-shell.mobile-shell .home-tagline p {
-			padding-top: 1.4rem;
+			padding-top: 0.95rem;
 			font-size: clamp(1rem, 4vw, 1.1rem);
 		}
 
