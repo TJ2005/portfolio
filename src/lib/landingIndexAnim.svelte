@@ -13,7 +13,6 @@
 	let { activeSection = 'home', startAnimation = false, currentSlide = 0 }: Props = $props();
 	let viewportWidth = $state(1200);
 	let isMobile = $derived(viewportWidth <= 768);
-	let mobileIndexOpen = $state(false);
 
 	const MENU_ITEM_GAP = new Tween(2, { duration: 800, easing: cubicInOut });
 
@@ -107,12 +106,6 @@
 	let previousSlideForTopLeft: number | null = null;
 	let previousSlideForIndexCascade: number | null = null;
 	let indexCascadeToken = 0;
-
-	$effect(() => {
-		if (!isMobile || activeSection === 'footer') {
-			mobileIndexOpen = false;
-		}
-	});
 
 	function wait(ms: number) {
 		return new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -466,9 +459,6 @@
 		const element = document.getElementById(sectionId);
 		if (element) {
 			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-			if (isMobile) {
-				mobileIndexOpen = false;
-			}
 		}
 	}
 
@@ -480,10 +470,6 @@
 	}
 
 	function getMenuItemOpacity(index: number): number {
-		if (isMobile) {
-			return 1;
-		}
-
 		if (currentSlide !== 0) {
 			return 1;
 		}
@@ -491,10 +477,6 @@
 	}
 
 	function canInteractWithMenuItem(index: number): boolean {
-		if (isMobile) {
-			return true;
-		}
-
 		if (currentSlide !== 0) {
 			return true;
 		}
@@ -693,33 +675,16 @@
 {#if activeSection !== 'footer'}
 	<div
 		class="menu-container"
-		class:mobile-drawer={isMobile}
 		in:fade={{ duration: 850 }}
 		style="
             position: fixed;
-            {isMobile
-			? `left: 0.5rem; top: 50%; bottom: auto; transform: translate(${mobileIndexOpen ? '0' : 'calc(-100% + 0.1rem)'}, -50%);`
-			: currentSlide === 0
-				? `left: ${containerX.current}%; top: ${containerY.current}%; bottom: auto; transform: translate(-50%, -50%);`
-				: 'left: 2rem; top: calc(100% - 2rem); bottom: auto; transform: translate(0, -100%);'}
+            {currentSlide === 0
+			? `left: ${containerX.current}%; top: ${containerY.current}%; bottom: auto; transform: translate(-50%, -50%);`
+			: `left: ${isMobile ? '1rem' : '2rem'}; top: calc(100% - ${isMobile ? '1rem' : '2rem'}); bottom: auto; transform: translate(0, -100%);`}
             z-index: {isMobile ? 130 : 100};
-            transition: {isMobile
-			? 'transform 0.32s cubic-bezier(0.22, 1, 0.36, 1)'
-			: getMenuContainerTransition()};
+            transition: {getMenuContainerTransition()};
         "
 	>
-		{#if isMobile}
-			<button
-				type="button"
-				class="mobile-index-toggle"
-				aria-label={mobileIndexOpen ? 'Close index' : 'Open index'}
-				aria-expanded={mobileIndexOpen}
-				onclick={() => (mobileIndexOpen = !mobileIndexOpen)}
-			>
-				{mobileIndexOpen ? '<' : '>'}
-			</button>
-		{/if}
-
 		<!-- Gradient blur backdrop -->
 		{#if currentSlide === 10}
 			<div class="blur-backdrop"></div>
@@ -755,7 +720,7 @@
 
 				<div
 					class="home-details"
-					class:visible={isMobile || currentSlide !== 0 || homeTaglineVisible || homeIndexVisible}
+					class:visible={currentSlide !== 0 || homeTaglineVisible || homeIndexVisible}
 					class:home-slide={currentSlide === 0}
 					class:docked-bottom={currentSlide > 1}
 				>
@@ -988,53 +953,38 @@
 		opacity: 1;
 	}
 
-	.mobile-index-toggle {
-		display: none;
-	}
-
 	@media (max-width: 768px) {
-		.mobile-index-toggle {
-			position: absolute;
-			top: 50%;
-			right: -1.45rem;
-			transform: translateY(-50%);
-			width: 1.75rem;
-			height: 3.15rem;
-			border: 1px solid rgba(25, 0, 255, 0.25);
-			border-left: none;
-			border-radius: 0 999px 999px 0;
-			background: rgba(255, 255, 255, 0.96);
-			color: var(--color-blue);
-			font-family: 'Zalando Sans', sans-serif;
-			font-size: 1.15rem;
-			line-height: 1;
-			cursor: pointer;
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			z-index: 4;
-		}
-
 		.index-shell.mobile-shell {
-			min-width: min(78vw, 19rem);
-			padding: 0.85rem 0.85rem 0.55rem;
+			min-width: min(84vw, 22rem);
+			padding: 1rem 1rem 0.75rem;
 			background-color: rgba(25, 0, 255, 0.9) !important;
 			backdrop-filter: blur(8px);
 		}
 
-		.index-shell.mobile-shell .hero-name,
-		.index-shell.mobile-shell .home-tagline {
-			display: none;
+		.index-shell.mobile-shell .home-stage {
+			min-height: min(70svh, 29rem);
 		}
 
-		.index-shell.mobile-shell .home-stage {
-			min-height: 0;
+		.index-shell.mobile-shell .hero-name {
+			font-size: clamp(1.85rem, 7.2vw, 2.35rem);
 		}
 
 		.index-shell.mobile-shell .home-details {
-			opacity: 1;
 			padding-top: 0;
 			position: relative;
+		}
+
+		.index-shell.mobile-shell .home-details.home-slide {
+			padding-top: clamp(4.4rem, 24vw, 6rem);
+		}
+
+		.index-shell.mobile-shell .home-tagline p {
+			padding-top: 1.4rem;
+			font-size: clamp(1rem, 4vw, 1.1rem);
+		}
+
+		.index-shell.mobile-shell #item-menu button {
+			font-size: clamp(0.96rem, 3.7vw, 1.05rem);
 		}
 
 		.index-shell.mobile-shell .home-details.docked-bottom {

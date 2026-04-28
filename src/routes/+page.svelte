@@ -298,8 +298,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 1 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 1 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 1 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 1
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -326,8 +328,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 3 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 3 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 3 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 3
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -354,8 +358,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 7 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 7 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 7 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 7
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -382,8 +388,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 10 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 10 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 10 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 10
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -430,8 +438,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 12 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 12 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 12 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 12
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -458,8 +468,10 @@
 			out:fade={{ duration: 600 }}
 			style="
                 position: fixed;
-                top: {currentSlide === 14 ? 'calc(100vh - 8rem)' : '2rem'};
-                --mobile-title-top: {currentSlide === 14 ? 'calc(100vh - 4rem)' : '2rem'};
+                top: {currentSlide === 14 ? 'var(--section-title-intro-top)' : '2rem'};
+                --mobile-title-top: {currentSlide === 14
+				? 'var(--section-title-intro-top)'
+				: '2rem'};
                 right: 2rem;
                 z-index: 90;
                 transition: top 0.8s cubic-bezier(0.65, 0, 0.35, 1);
@@ -960,13 +972,14 @@
 			top: var(--mobile-title-top, calc(100vh - 4rem)) !important;
 			right: 2rem !important;
 			max-width: calc(100vw - 4.4rem);
-			overflow: hidden;
+			overflow: visible;
 		}
 
 		.fixed-section-title .animated-section-title {
 			display: flex !important;
 			flex-wrap: wrap;
 			max-width: 100%;
+			text-wrap: balance;
 			white-space: normal;
 			font-size: var(--font-section-title) !important;
 			line-height: 0.86 !important;
@@ -985,12 +998,30 @@
 		}
 
 		.fixed-csstack-title > div {
-			display: none;
+			right: -0.5rem !important;
+			width: calc(100% + 5rem) !important;
+			height: calc(100% + 2.25rem) !important;
+			backdrop-filter: blur(18px) !important;
+			-webkit-backdrop-filter: blur(18px) !important;
+			mask-image: linear-gradient(
+				to left,
+				rgba(0, 0, 0, 0.92) 0%,
+				rgba(0, 0, 0, 0.72) 42%,
+				transparent 100%
+			) !important;
+			-webkit-mask-image: linear-gradient(
+				to left,
+				rgba(0, 0, 0, 0.92) 0%,
+				rgba(0, 0, 0, 0.72) 42%,
+				transparent 100%
+			) !important;
+			mask-composite: add !important;
+			-webkit-mask-composite: source-over !important;
 		}
 
 		.experience-content,
 		.education-content {
-			left: 2.5rem !important;
+			left: 1rem !important;
 			right: 1rem !important;
 			bottom: 0 !important;
 			width: auto !important;

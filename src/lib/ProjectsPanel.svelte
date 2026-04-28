@@ -33,10 +33,8 @@
 		}
 	];
 
-	const PAGE_SIZE = 4;
-	const pages = Array.from({ length: Math.ceil(projects.length / PAGE_SIZE) }, (_, i) =>
-		projects.slice(i * PAGE_SIZE, (i + 1) * PAGE_SIZE)
-	);
+	const DESKTOP_PAGE_SIZE = 4;
+	const MOBILE_PAGE_SIZE = 2;
 
 	let currentPage = $state(0);
 	let dir = $state<1 | -1>(1); // 1 = forward/down, -1 = backward/up
@@ -51,6 +49,17 @@
 		active: false
 	});
 
+	function getPageSize() {
+		return isMobile ? MOBILE_PAGE_SIZE : DESKTOP_PAGE_SIZE;
+	}
+
+	function getPages() {
+		const pageSize = getPageSize();
+		return Array.from({ length: Math.ceil(projects.length / pageSize) }, (_, i) =>
+			projects.slice(i * pageSize, (i + 1) * pageSize)
+		);
+	}
+
 	// Reset page when section becomes invisible
 	$effect(() => {
 		if (!visible) {
@@ -59,12 +68,21 @@
 		}
 	});
 
-	// ── TILT STATE (4 slots, reset on page change) ────────────────
-	let tilts = $state(Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false })));
 	$effect(() => {
-		// reference currentPage to re-run when it changes
+		const pages = getPages();
+		if (currentPage > pages.length - 1) {
+			currentPage = 0;
+		}
+	});
+
+	// ── TILT STATE (slots match current page size) ────────────────
+	let tilts = $state(
+		Array.from({ length: DESKTOP_PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }))
+	);
+	$effect(() => {
 		currentPage;
-		tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }));
+		const pageSize = getPageSize();
+		tilts = Array.from({ length: pageSize }, () => ({ rx: 0, ry: 0, hovering: false }));
 	});
 
 	onMount(() => {
@@ -80,7 +98,7 @@
 		if (!visible || !isMobile) return;
 
 		if (!deviceTiltState.permissionGranted) {
-			tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }));
+			tilts = Array.from({ length: getPageSize() }, () => ({ rx: 0, ry: 0, hovering: false }));
 			return;
 		}
 
@@ -88,7 +106,7 @@
 		const rx = -deviceTiltState.y * maxTilt;
 		const ry = deviceTiltState.x * maxTilt;
 
-		tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx, ry, hovering: false }));
+		tilts = Array.from({ length: getPageSize() }, () => ({ rx, ry, hovering: false }));
 	});
 
 	function onMouseMove(e: MouseEvent, i: number) {
@@ -118,6 +136,7 @@
 	$effect(() => {
 		if (!container) return;
 		const handler = (e: WheelEvent) => {
+			const pages = getPages();
 			if (cooling) {
 				e.preventDefault();
 				return;
@@ -185,7 +204,7 @@
 			<p class="section-label mondwest">My Work</p>
 			<!-- dot indicators -->
 			<div class="dots">
-				{#each pages as _, pi}
+				{#each getPages() as _, pi}
 					<button
 						class="dot"
 						class:active={pi === currentPage}
@@ -208,7 +227,7 @@
 			<!-- keyed grid — both old+new exist simultaneously, slide past each other -->
 			{#key currentPage}
 				<div class="cards-grid" in:slideIn={{ duration: 640 }} out:slideOut={{ duration: 640 }}>
-					{#each pages[currentPage] as project, i}
+					{#each getPages()[currentPage] as project, i}
 						<div
 							class="card-wrap"
 							style="perspective: 1100px;"
@@ -402,7 +421,7 @@
 
 	@media (max-width: 768px) {
 		.projects-wrap {
-			left: 2.5rem;
+			left: 1rem;
 			right: 1rem;
 			bottom: 0;
 			width: auto;
@@ -417,48 +436,49 @@
 		.grid-viewport {
 			height: calc(100svh - 12.25rem);
 			max-height: none;
-			overflow-y: auto;
-			padding-right: 0.15rem;
-			scrollbar-width: none;
-		}
-
-		.grid-viewport::-webkit-scrollbar {
-			display: none;
+			overflow: hidden;
 		}
 
 		.cards-grid {
-			position: relative;
-			inset: auto;
+			height: 100%;
 			grid-template-columns: 1fr;
-			gap: 0.85rem;
+			grid-template-rows: repeat(2, minmax(0, 1fr));
+			gap: 0.9rem;
 		}
 
 		.card-wrap {
-			min-height: 13.5rem;
-			height: auto;
+			min-height: 0;
+			height: 100%;
 		}
 
 		.card {
-			min-height: 13.5rem;
-			border-radius: 18px;
+			height: 100%;
+			border-radius: 16px;
 		}
 
 		.card-visual {
-			flex: 0 0 2.2rem;
-			margin: 0.85rem 0.85rem 0;
+			flex: 0 0 auto;
+			width: min(100%, 22rem);
+			align-self: center;
+			aspect-ratio: 16 / 9;
+			margin: 0.8rem 0.8rem 0;
 			border-radius: 12px;
 		}
 
 		.card-footer {
-			padding: 0.8rem 1rem 1rem;
+			flex: 1;
+			padding: 0.8rem 0.9rem 0.9rem;
+			gap: 0.38rem;
 		}
 
 		.card-title {
-			line-height: 0.95;
+			font-size: clamp(17px, 4.7vw, 20px);
+			line-height: 1.02;
 		}
 
 		.card-desc {
-			line-height: 1.42;
+			font-size: clamp(12.5px, 3.25vw, 13.5px);
+			line-height: 1.34;
 		}
 	}
 </style>

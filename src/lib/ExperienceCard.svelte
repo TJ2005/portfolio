@@ -160,6 +160,8 @@
 		}
 
 		.timespan {
+			font-size: clamp(20px, 5vw, 24px);
+			letter-spacing: -0.03em;
 			line-height: 1;
 			margin-bottom: 0.15rem;
 		}

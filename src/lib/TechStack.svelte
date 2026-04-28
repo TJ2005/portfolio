@@ -246,7 +246,7 @@
 		}
 
 		.tools-wrap {
-			left: 2.5rem;
+			left: 1rem;
 			right: 1rem;
 			bottom: 0;
 			width: auto;

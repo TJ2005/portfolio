@@ -5,59 +5,32 @@
 	--color-white: #ffffff;
 	--color-black: #000000;
 	--color-mutedgray: #4c4c4c;
-	--font-section-title: clamp(70px, min(6.65vw, 12.8vh), 112px);
-	--font-section-title-long: clamp(52px, min(5.35vw, 10vh), 92px);
-	--font-section-title-contact: clamp(46px, min(4.8vw, 9vh), 82px);
-	--font-about-hey: clamp(78px, min(9.6vw, 16vh), 150px);
-	--font-about-name: clamp(34px, min(4.05vw, 7vh), 62px);
-	--font-about-intro: clamp(26px, min(2.3vw, 4.1vh), 36px);
-	--font-about-body: clamp(22px, min(1.8vw, 3.35vh), 30px);
-	--font-card-title: clamp(42px, min(3.75vw, 6.6vh), 58px);
-	--font-card-meta: clamp(22px, min(1.95vw, 3.3vh), 30px);
-	--font-card-body: clamp(22px, min(1.9vw, 3.25vh), 30px);
-	--font-card-note: clamp(18px, min(1.55vw, 2.75vh), 24px);
-	--font-panel-label: clamp(22px, min(1.95vw, 3.3vh), 30px);
-	--font-tool-name: clamp(22px, min(1.95vw, 3.3vh), 30px);
-	--font-tool-category: clamp(13px, min(1.05vw, 1.8vh), 16px);
-	--font-project-title: clamp(18px, min(1.35vw, 2.25vh), 22px);
-	--font-project-copy: clamp(12.5px, min(0.9vw, 1.65vh), 14px);
-	--font-contact-heading: clamp(42px, min(3.75vw, 6.6vh), 58px);
-	--font-contact-copy: clamp(22px, min(1.8vw, 3.2vh), 28px);
-	--font-footer-link: clamp(34px, min(3vw, 5.4vh), 52px);
-	--font-footer-brand: clamp(120px, min(14vw, 22vh), 190px);
-	--font-footer-city: clamp(48px, min(5.5vw, 9vh), 70px);
-	--font-footer-meta: clamp(18px, min(1.6vw, 2.8vh), 28px);
-	--font-footer-cta: clamp(52px, min(4.75vw, 8.4vh), 72px);
-	--font-footer-copy: clamp(16px, min(1.2vw, 2.2vh), 20px);
-}
-
-@media (max-width: 768px) {
-	:root {
-		--font-section-title: clamp(42px, 13vw, 56px);
-		--font-section-title-long: clamp(34px, 10.8vw, 48px);
-		--font-section-title-contact: clamp(28px, 8.5vw, 34px);
-		--font-about-hey: clamp(58px, 18vw, 82px);
-		--font-about-name: clamp(29px, 9vw, 42px);
-		--font-about-intro: clamp(22px, 6vw, 28px);
-		--font-about-body: clamp(18px, 5vw, 22px);
-		--font-card-title: clamp(36px, 10vw, 44px);
-		--font-card-meta: clamp(19px, 5.5vw, 23px);
-		--font-card-body: clamp(18px, 5.2vw, 22px);
-		--font-card-note: 18px;
-		--font-panel-label: clamp(21px, 5.8vw, 25px);
-		--font-tool-name: clamp(22px, 6.5vw, 28px);
-		--font-tool-category: 13px;
-		--font-project-title: clamp(20px, 6vw, 25px);
-		--font-project-copy: 13px;
-		--font-contact-heading: clamp(31px, 8.8vw, 38px);
-		--font-contact-copy: clamp(18px, 5.2vw, 21px);
-		--font-footer-link: clamp(26px, 7.4vw, 32px);
-		--font-footer-brand: clamp(100px, 26vw, 150px);
-		--font-footer-city: clamp(42px, 11vw, 62px);
-		--font-footer-meta: 14px;
-		--font-footer-cta: clamp(38px, 11vw, 44px);
-		--font-footer-copy: 16px;
-	}
+	--section-title-intro-offset: clamp(4rem, calc(2.4rem + 6vw), 8rem);
+	--section-title-intro-top: calc(100svh - var(--section-title-intro-offset));
+	--font-section-title: clamp(42px, calc(30.8px + 4.24vw), 112px);
+	--font-section-title-long: clamp(34px, calc(28px + 3.34vw), 92px);
+	--font-section-title-contact: clamp(28px, calc(22px + 3vw), 82px);
+	--font-about-hey: clamp(58px, calc(49.5px + 5.25vw), 150px);
+	--font-about-name: clamp(29px, calc(26.5px + 2.2vw), 62px);
+	--font-about-intro: clamp(22px, calc(19.8px + 0.93vw), 36px);
+	--font-about-body: clamp(18px, calc(15.6px + 1vw), 30px);
+	--font-card-title: clamp(36px, calc(35px + 1.2vw), 58px);
+	--font-card-meta: clamp(19px, calc(18.5px + 0.68vw), 30px);
+	--font-card-body: clamp(18px, calc(16.9px + 0.76vw), 30px);
+	--font-card-note: clamp(18px, calc(16.9px + 0.45vw), 24px);
+	--font-panel-label: clamp(21px, calc(18.5px + 0.68vw), 30px);
+	--font-tool-name: clamp(22px, calc(18.8px + 0.74vw), 30px);
+	--font-tool-category: clamp(13px, calc(12px + 0.22vw), 16px);
+	--font-project-title: clamp(18px, calc(15.8px + 0.38vw), 22px);
+	--font-project-copy: clamp(12.5px, calc(12px + 0.12vw), 14px);
+	--font-contact-heading: clamp(31px, calc(28px + 1.8vw), 58px);
+	--font-contact-copy: clamp(18px, calc(16px + 0.65vw), 28px);
+	--font-footer-link: clamp(26px, calc(22px + 1.55vw), 52px);
+	--font-footer-brand: clamp(100px, calc(81px + 5.8vw), 190px);
+	--font-footer-city: clamp(42px, calc(35px + 1.85vw), 70px);
+	--font-footer-meta: clamp(14px, calc(12px + 0.8vw), 28px);
+	--font-footer-cta: clamp(38px, calc(34px + 2vw), 72px);
+	--font-footer-copy: clamp(16px, calc(14.6px + 0.28vw), 20px);
 }
 
 body {

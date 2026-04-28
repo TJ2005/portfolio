@@ -341,11 +341,11 @@
 		.intro-layer {
 			align-items: center;
 			justify-content: flex-end;
-			padding: 0 1rem 0 2.5rem;
+			padding: 0 1rem;
 		}
 
 		.intro-text-wrap {
-			width: calc(100vw - 3.5rem);
+			width: calc(100vw - 2rem);
 			align-items: flex-end;
 		}
 
@@ -364,7 +364,7 @@
 		}
 
 		.about-content {
-			left: 2.5rem;
+			left: 1rem;
 			right: 1rem;
 			bottom: 0;
 			width: auto;
