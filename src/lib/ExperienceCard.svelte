@@ -73,7 +73,7 @@
 	}
 
 	.company-name {
-		font-size: 54px;
+		font-size: var(--font-card-title);
 		font-weight: 700;
 		line-height: 1.1;
 		margin: 0 0 0.5rem 0;
@@ -81,7 +81,7 @@
 	}
 
 	.job-title {
-		font-size: 28px;
+		font-size: var(--font-card-meta);
 		font-weight: 400;
 		line-height: 1.3;
 		margin: 0;
@@ -89,7 +89,7 @@
 	}
 
 	.timespan {
-		font-size: 54px;
+		font-size: var(--font-card-title);
 		font-weight: 400;
 		line-height: 1.1;
 		margin: 0 0 0.25rem 0;
@@ -97,7 +97,7 @@
 	}
 
 	.responsibilities-label {
-		font-size: 28px;
+		font-size: var(--font-card-meta);
 		line-height: 1.3;
 		color: var(--color-blue);
 	}
@@ -109,7 +109,7 @@
 	}
 
 	.responsibility-item {
-		font-size: 28px;
+		font-size: var(--font-card-body);
 		font-weight: 200;
 		line-height: 1.4;
 		margin-bottom: 0.5rem;
@@ -125,7 +125,7 @@
 	}
 
 	.optional-text {
-		font-size: 24px;
+		font-size: var(--font-card-note);
 		font-weight: 300;
 		line-height: 1.5;
 		color: var(--color-mutedgray);
@@ -150,25 +150,21 @@
 		}
 
 		.company-name {
-			font-size: clamp(36px, 10vw, 44px);
 			line-height: 0.98;
 			letter-spacing: -0.035em;
 			margin-bottom: 0.45rem;
 		}
 
 		.job-title {
-			font-size: clamp(19px, 5.5vw, 23px);
 			line-height: 1.18;
 		}
 
 		.timespan {
-			font-size: clamp(22px, 6.2vw, 28px);
 			line-height: 1;
 			margin-bottom: 0.15rem;
 		}
 
 		.responsibilities-label {
-			font-size: clamp(19px, 5.2vw, 23px);
 			line-height: 1.1;
 		}
 
@@ -177,14 +173,12 @@
 		}
 
 		.responsibility-item {
-			font-size: clamp(18px, 5.2vw, 22px);
 			line-height: 1.32;
 			padding-left: 1.05rem;
 			margin-bottom: 0.6rem;
 		}
 
 		.optional-text {
-			font-size: 18px;
 			line-height: 1.35;
 		}
 	}

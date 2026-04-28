@@ -163,7 +163,7 @@
 
 	/* "MY TOOLS" — same size/style as "Responsibilities" in ExperienceCard */
 	.tools-label {
-		font-size: 28px;
+		font-size: var(--font-panel-label);
 		color: var(--color-blue);
 		margin: 0 0 1.25rem 0;
 		letter-spacing: 0.02em;
@@ -214,7 +214,7 @@
 
 	.tool-name {
 		flex: 1;
-		font-size: 28px;
+		font-size: var(--font-tool-name);
 		font-weight: 400;
 		color: var(--color-blue);
 		line-height: 1;
@@ -222,7 +222,7 @@
 
 	.tool-cat {
 		font-family: 'Inter Variable', sans-serif;
-		font-size: 16px;
+		font-size: var(--font-tool-category);
 		font-weight: 300;
 		color: var(--color-mutedgray);
 		white-space: nowrap;
@@ -255,7 +255,6 @@
 		}
 
 		.tools-label {
-			font-size: clamp(21px, 5.8vw, 25px);
 			margin-bottom: 0.8rem;
 		}
 
@@ -271,14 +270,12 @@
 
 		.tool-name {
 			min-width: 0;
-			font-size: clamp(22px, 6.5vw, 28px);
 		}
 
 		.tool-cat {
 			max-width: 7.5rem;
 			white-space: normal;
 			text-align: right;
-			font-size: 13px;
 			line-height: 1.15;
 		}
 	}

@@ -25,6 +25,24 @@ const initialState: DeviceTiltState = {
 const tiltState = writable<DeviceTiltState>(initialState);
 let listenerAttached = false;
 
+function sameTiltState(a: DeviceTiltState, b: DeviceTiltState) {
+	return (
+		a.x === b.x &&
+		a.y === b.y &&
+		a.supported === b.supported &&
+		a.permissionRequired === b.permissionRequired &&
+		a.permissionGranted === b.permissionGranted &&
+		a.active === b.active
+	);
+}
+
+function updateTiltState(getNext: (state: DeviceTiltState) => DeviceTiltState) {
+	tiltState.update((state) => {
+		const next = getNext(state);
+		return sameTiltState(state, next) ? state : next;
+	});
+}
+
 function clamp(value: number, min: number, max: number) {
 	return Math.min(max, Math.max(min, value));
 }
@@ -39,7 +57,7 @@ export function syncDeviceTiltSupport() {
 	const supported = Boolean(OrientationEvent);
 	const permissionRequired = Boolean(OrientationEvent?.requestPermission);
 
-	tiltState.update((state) => ({
+	updateTiltState((state) => ({
 		...state,
 		supported,
 		permissionRequired,
@@ -53,7 +71,7 @@ function handleDeviceOrientation(event: DeviceOrientationEvent) {
 	const gamma = event.gamma;
 	const beta = event.beta;
 
-	tiltState.update((state) => ({
+	updateTiltState((state) => ({
 		...state,
 		x: clamp(gamma / 35, -1, 1),
 		y: clamp(beta / 45, -1, 1),
@@ -66,7 +84,7 @@ export function startDeviceTilt() {
 
 	syncDeviceTiltSupport();
 
-	tiltState.update((state) => {
+	updateTiltState((state) => {
 		if (!state.supported || (state.permissionRequired && !state.permissionGranted)) return state;
 
 		if (!listenerAttached) {
@@ -88,7 +106,7 @@ export async function requestDeviceTiltPermission() {
 	}
 
 	if (!OrientationEvent.requestPermission) {
-		tiltState.update((state) => ({
+		updateTiltState((state) => ({
 			...state,
 			supported: true,
 			permissionRequired: false,
@@ -100,7 +118,7 @@ export async function requestDeviceTiltPermission() {
 
 	try {
 		const permission = await OrientationEvent.requestPermission();
-		tiltState.update((state) => ({
+		updateTiltState((state) => ({
 			...state,
 			supported: true,
 			permissionRequired: true,
@@ -111,7 +129,7 @@ export async function requestDeviceTiltPermission() {
 			startDeviceTilt();
 		}
 	} catch {
-		tiltState.update((state) => ({
+		updateTiltState((state) => ({
 			...state,
 			supported: true,
 			permissionRequired: true,

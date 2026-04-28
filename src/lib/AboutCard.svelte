@@ -15,45 +15,76 @@
 	let introTextWrap = $state<HTMLDivElement>();
 	let nameLine = $state<HTMLDivElement>();
 	let aboutContent = $state<HTMLDivElement>();
-	let mobileNameSlideY = $state('15vh');
+	let introLine = $state<HTMLParagraphElement>();
+	let nameSlideY = $state('19vh');
 	let mobileNameArrived = $state(false);
 
-	async function updateMobileNameSlide() {
+	function waitForFrame() {
+		if (typeof requestAnimationFrame === 'undefined') {
+			return Promise.resolve();
+		}
+
+		return new Promise<void>((resolve) => {
+			requestAnimationFrame(() => resolve());
+		});
+	}
+
+	function getDefaultNameSlideY() {
+		return viewportWidth <= 768 ? '15vh' : '19vh';
+	}
+
+	async function updateNameSlide() {
 		if (typeof window === 'undefined') return;
 
 		await tick();
+		await waitForFrame();
 
-		if (!introTextWrap || !nameLine || !aboutContent || viewportWidth > 768) {
-			mobileNameSlideY = '15vh';
+		if (!introTextWrap || !nameLine || !aboutContent || !introLine) {
+			nameSlideY = getDefaultNameSlideY();
 			return;
 		}
 
+		const isMobileViewport = viewportWidth <= 768;
 		const introRect = introTextWrap.getBoundingClientRect();
-		const contentRect = aboutContent.getBoundingClientRect();
+		const introLineRect = introLine.getBoundingClientRect();
 		const nameTop = introRect.top + nameLine.offsetTop;
 		const nameHeight = nameLine.offsetHeight;
-		const targetScale = 0.84;
-		const landingGap = Math.min(16, Math.max(8, viewportHeight * 0.015));
-		const distance = contentRect.top - nameTop - nameHeight * targetScale - landingGap;
+		const targetScale = isMobileViewport ? 0.84 : 0.8;
+		const landingGap = Math.min(18, Math.max(8, viewportHeight * 0.016));
+		const targetTop = introLineRect.top - nameHeight * targetScale - landingGap;
+		const distance = targetTop - nameTop;
 
-		mobileNameSlideY = `${Math.max(0, Math.round(distance))}px`;
+		nameSlideY = Number.isFinite(distance) ? `${Math.round(distance)}px` : getDefaultNameSlideY();
 	}
 
 	$effect(() => {
+		const hasMeasuredElements =
+			visible && Boolean(introTextWrap && nameLine && aboutContent && introLine);
 		const isMobileReady =
-			visible && viewportWidth <= 768 && Boolean(introTextWrap && nameLine && aboutContent);
+			visible &&
+			viewportWidth <= 768 &&
+			Boolean(introTextWrap && nameLine && aboutContent && introLine);
 
-		void updateMobileNameSlide();
+		void updateNameSlide();
+
+		if (!hasMeasuredElements) {
+			mobileNameArrived = false;
+			return;
+		}
 
 		if (!isMobileReady) {
 			mobileNameArrived = false;
-			return;
+			const timeout = setTimeout(() => {
+				void updateNameSlide();
+			}, 4050);
+
+			return () => clearTimeout(timeout);
 		}
 
 		mobileNameArrived = false;
 
 		const timeout = setTimeout(() => {
-			void updateMobileNameSlide().then(() => {
+			void updateNameSlide().then(() => {
 				requestAnimationFrame(() => {
 					mobileNameArrived = true;
 				});
@@ -67,7 +98,7 @@
 <svelte:window bind:innerWidth={viewportWidth} bind:innerHeight={viewportHeight} />
 
 {#if visible}
-	<div class="about-stage" style="--mobile-name-slide-y: {mobileNameSlideY};">
+	<div class="about-stage" style="--name-slide-y: {nameSlideY};">
 		<div class="intro-layer">
 			<div class="intro-text-wrap" bind:this={introTextWrap}>
 				<div class="hey-line zalando">
@@ -95,7 +126,9 @@
 		</div>
 
 		<div class="about-content" bind:this={aboutContent}>
-			<p class="zalando intro-line">I'm currently studying B.Tech, focused on cybersecurity.</p>
+			<p class="zalando intro-line" bind:this={introLine}>
+				I'm currently studying B.Tech, focused on cybersecurity.
+			</p>
 
 			<p class="zalando paragraph">
 				I'm into a lot of things, but the ones that stuck are SaaS development, web dev, UI/UX, and
@@ -134,7 +167,7 @@
 
 	.hey-line {
 		display: inline-flex;
-		font-size: clamp(72px, 10vw, 152px);
+		font-size: var(--font-about-hey);
 		line-height: 0.9;
 		letter-spacing: -0.055em;
 		color: var(--color-blue);
@@ -156,7 +189,7 @@
 
 	.name-line {
 		display: inline-flex;
-		font-size: clamp(32px, 4.2vw, 62px);
+		font-size: var(--font-about-name);
 		line-height: 0.95;
 		letter-spacing: -0.045em;
 		color: var(--color-blue);
@@ -194,7 +227,7 @@
 	}
 
 	.paragraph {
-		font-size: clamp(22px, 1.8vw, 30px);
+		font-size: var(--font-about-body);
 		font-weight: 340;
 		line-height: 1.24;
 		letter-spacing: -0.012em;
@@ -205,7 +238,7 @@
 	}
 
 	.intro-line {
-		font-size: clamp(26px, 2.3vw, 36px);
+		font-size: var(--font-about-intro);
 		font-weight: 430;
 		line-height: 1.08;
 		letter-spacing: -0.02em;
@@ -266,7 +299,7 @@
 			transform: translateY(0) scale(1);
 		}
 		to {
-			transform: translateY(19vh) scale(0.8);
+			transform: translateY(var(--name-slide-y, 19vh)) scale(0.8);
 		}
 	}
 
@@ -274,10 +307,6 @@
 		.about-content,
 		.intro-text-wrap {
 			width: calc(100vw - 4rem);
-		}
-
-		.paragraph {
-			font-size: 22px;
 		}
 
 		.intro-layer {
@@ -294,7 +323,7 @@
 			transform: translateY(0) scale(1);
 		}
 		to {
-			transform: translateY(var(--mobile-name-slide-y, 15vh)) scale(0.84);
+			transform: translateY(var(--name-slide-y, 15vh)) scale(0.84);
 		}
 	}
 
@@ -306,7 +335,7 @@
 		}
 
 		.persistent-name.mobile-arrived {
-			transform: translateY(var(--mobile-name-slide-y, 15vh)) scale(0.84);
+			transform: translateY(var(--name-slide-y, 15vh)) scale(0.84);
 		}
 
 		.intro-layer {
@@ -322,7 +351,6 @@
 
 		.hey-line {
 			justify-content: flex-end;
-			font-size: clamp(58px, 18vw, 82px);
 			letter-spacing: -0.06em;
 		}
 
@@ -333,7 +361,6 @@
 		.name-line {
 			justify-content: flex-end;
 			text-align: right;
-			font-size: clamp(29px, 9vw, 42px);
 		}
 
 		.about-content {
@@ -352,12 +379,10 @@
 		}
 
 		.intro-line {
-			font-size: clamp(22px, 6vw, 28px);
 			line-height: 1.1;
 		}
 
 		.paragraph {
-			font-size: clamp(18px, 5vw, 22px);
 			line-height: 1.32;
 		}
 	}

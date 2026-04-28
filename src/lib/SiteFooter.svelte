@@ -1,556 +1,553 @@
 <script lang="ts">
-    import { onDestroy, onMount } from "svelte";
-    import { gsap } from "gsap";
-    import FooterCta from "$lib/footer/FooterCta.svelte";
+	import { onDestroy, onMount } from 'svelte';
+	import { gsap } from 'gsap';
+	import FooterCta from '$lib/footer/FooterCta.svelte';
 
-    let year = new Date().getFullYear();
-    const motionEnabled = true;
+	let year = new Date().getFullYear();
+	const motionEnabled = true;
 
-    const homeHref = "#home";
-    const studioHref = "/";
-    const aboutHref = "#about";
-    const contactHref = "#contact";
-    const linkedinHref = "/";
-    const notesHref = "https://notes.tj25.tech";
-    const instagramHref = "/";
+	const homeHref = '#home';
+	const studioHref = '/';
+	const aboutHref = '#about';
+	const contactHref = '#contact';
+	const linkedinHref = '/';
+	const notesHref = 'https://notes.tj25.tech';
+	const instagramHref = '/';
 
-    const MOUSE_STEP = 80;
-    const FOOTER_SHIFT_MAX = 180;
-    let footerSectionEl: HTMLElement | undefined;
-    let footerWrapEl: HTMLDivElement | undefined;
-    let footerMoveEl: HTMLDivElement | undefined;
-    let footerEntered = $state(false);
-    let scramblePluginReady = $state(false);
-    let lastX: number | null = null;
-    let scrollContainerEl: HTMLDivElement | null = null;
-    const prefersReducedMotion =
-        typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+	const MOUSE_STEP = 80;
+	const FOOTER_SHIFT_MAX = 180;
+	let footerSectionEl: HTMLElement | undefined;
+	let footerWrapEl: HTMLDivElement | undefined;
+	let footerMoveEl: HTMLDivElement | undefined;
+	let footerEntered = $state(false);
+	let scramblePluginReady = $state(false);
+	let lastX: number | null = null;
+	let scrollContainerEl: HTMLDivElement | null = null;
+	const prefersReducedMotion =
+		typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    function trackFooterSection(node: HTMLElement) {
-        footerSectionEl = node;
-        return () => {
-            if (footerSectionEl === node) footerSectionEl = undefined;
-        };
-    }
+	function trackFooterSection(node: HTMLElement) {
+		footerSectionEl = node;
+		return () => {
+			if (footerSectionEl === node) footerSectionEl = undefined;
+		};
+	}
 
-    function trackFooterWrap(node: HTMLDivElement) {
-        footerWrapEl = node;
-        return () => {
-            if (footerWrapEl === node) footerWrapEl = undefined;
-        };
-    }
+	function trackFooterWrap(node: HTMLDivElement) {
+		footerWrapEl = node;
+		return () => {
+			if (footerWrapEl === node) footerWrapEl = undefined;
+		};
+	}
 
-    function trackFooterMove(node: HTMLDivElement) {
-        footerMoveEl = node;
-        return () => {
-            if (footerMoveEl === node) footerMoveEl = undefined;
-        };
-    }
+	function trackFooterMove(node: HTMLDivElement) {
+		footerMoveEl = node;
+		return () => {
+			if (footerMoveEl === node) footerMoveEl = undefined;
+		};
+	}
 
-    async function registerScramblePlugin() {
-        try {
-            const module = (await import("gsap/ScrambleTextPlugin")) as {
-                ScrambleTextPlugin?: unknown;
-                default?: unknown;
-            };
-            const scramblePlugin = module.ScrambleTextPlugin ?? module.default;
-            if (scramblePlugin) {
-                gsap.registerPlugin(scramblePlugin as any);
-                scramblePluginReady = true;
-            }
-        } catch (error) {
-            console.warn("GSAP ScrambleTextPlugin failed to load", error);
-        }
-    }
+	async function registerScramblePlugin() {
+		try {
+			const module = (await import('gsap/ScrambleTextPlugin')) as {
+				ScrambleTextPlugin?: unknown;
+				default?: unknown;
+			};
+			const scramblePlugin = module.ScrambleTextPlugin ?? module.default;
+			if (scramblePlugin) {
+				gsap.registerPlugin(scramblePlugin as any);
+				scramblePluginReady = true;
+			}
+		} catch (error) {
+			console.warn('GSAP ScrambleTextPlugin failed to load', error);
+		}
+	}
 
-    function isMobileViewport() {
-        return window.matchMedia("(max-width: 768px)").matches;
-    }
+	function isMobileViewport() {
+		return window.matchMedia('(max-width: 768px)').matches;
+	}
 
-    function applyFooterTransform() {
-        if (!footerMoveEl || !motionEnabled) return;
-        if (!footerWrapEl) return;
+	function applyFooterTransform() {
+		if (!footerMoveEl || !motionEnabled) return;
+		if (!footerWrapEl) return;
 
-        if (isMobileViewport()) {
-            footerMoveEl.style.transform = "translate3d(0, 0px, 0)";
-            return;
-        }
+		if (isMobileViewport()) {
+			footerMoveEl.style.transform = 'translate3d(0, 0px, 0)';
+			return;
+		}
 
-        const rect = (footerSectionEl ?? footerWrapEl).getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
-        let scrollShift = -(1 - progress) * FOOTER_SHIFT_MAX;
+		const rect = (footerSectionEl ?? footerWrapEl).getBoundingClientRect();
+		const viewportHeight = window.innerHeight;
+		const progress = Math.min(1, Math.max(0, (viewportHeight - rect.top) / viewportHeight));
+		let scrollShift = -(1 - progress) * FOOTER_SHIFT_MAX;
 
-        // Once the footer section reaches the snapped position, lock to zero shift.
-        if (rect.top <= 0 || Math.abs(scrollShift) < 0.5) {
-            scrollShift = 0;
-        }
+		// Once the footer section reaches the snapped position, lock to zero shift.
+		if (rect.top <= 0 || Math.abs(scrollShift) < 0.5) {
+			scrollShift = 0;
+		}
 
-        footerMoveEl.style.transform = `translate3d(0, ${scrollShift}px, 0)`;
-    }
+		footerMoveEl.style.transform = `translate3d(0, ${scrollShift}px, 0)`;
+	}
 
-    function handleMouseMove(event: MouseEvent) {
-        if (!motionEnabled || isMobileViewport()) return;
+	function handleMouseMove(event: MouseEvent) {
+		if (!motionEnabled || isMobileViewport()) return;
 
-        const x = event.clientX;
-        if (lastX === null) {
-            lastX = x;
-            return;
-        }
+		const x = event.clientX;
+		if (lastX === null) {
+			lastX = x;
+			return;
+		}
 
-        const delta = Math.abs(x - lastX);
-        if (delta >= MOUSE_STEP) {
-            lastX = x;
-        }
-    }
+		const delta = Math.abs(x - lastX);
+		if (delta >= MOUSE_STEP) {
+			lastX = x;
+		}
+	}
 
-    function resetMouseState() {
-        lastX = null;
-        applyFooterTransform();
-    }
+	function resetMouseState() {
+		lastX = null;
+		applyFooterTransform();
+	}
 
-    function scrambleHover(event: MouseEvent, text: string) {
-        if (prefersReducedMotion || !scramblePluginReady) return;
+	function scrambleHover(event: MouseEvent, text: string) {
+		if (prefersReducedMotion || !scramblePluginReady) return;
 
-        const currentTarget = event.currentTarget as HTMLElement | null;
-        if (!currentTarget) return;
-        const target = (currentTarget.querySelector(".hover-scramble") as HTMLElement | null) || currentTarget;
+		const currentTarget = event.currentTarget as HTMLElement | null;
+		if (!currentTarget) return;
+		const target =
+			(currentTarget.querySelector('.hover-scramble') as HTMLElement | null) || currentTarget;
 
-        const timeline = gsap.timeline();
-        timeline.to(target, { width: `${target.offsetWidth}px`, duration: 0 });
-        timeline.to(target, { duration: 0.5, scrambleText: { text, chars: "lowerCase" } });
-        timeline.to(target, { width: "auto", duration: 0 });
-    }
+		const timeline = gsap.timeline();
+		timeline.to(target, { width: `${target.offsetWidth}px`, duration: 0 });
+		timeline.to(target, { duration: 0.5, scrambleText: { text, chars: 'lowerCase' } });
+		timeline.to(target, { width: 'auto', duration: 0 });
+	}
 
-    function scrollToSection(sectionId: string) {
-        const element = document.getElementById(sectionId);
-        if (element) {
-            element.scrollIntoView({ behavior: "smooth", block: "start" });
-        }
-    }
+	function scrollToSection(sectionId: string) {
+		const element = document.getElementById(sectionId);
+		if (element) {
+			element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+		}
+	}
 
-    function handleSectionLinkClick(event: MouseEvent, sectionId: string) {
-        event.preventDefault();
-        scrollToSection(sectionId);
-    }
+	function handleSectionLinkClick(event: MouseEvent, sectionId: string) {
+		event.preventDefault();
+		scrollToSection(sectionId);
+	}
 
-    onMount(() => {
-        void registerScramblePlugin();
+	onMount(() => {
+		void registerScramblePlugin();
 
-        scrollContainerEl = document.querySelector(".snap-container");
+		scrollContainerEl = document.querySelector('.snap-container');
 
-        const onScroll = () => applyFooterTransform();
-        const onResize = () => {
-            if (!motionEnabled || isMobileViewport()) {
-                resetMouseState();
-            }
-            applyFooterTransform();
-        };
+		const onScroll = () => applyFooterTransform();
+		const onResize = () => {
+			if (!motionEnabled || isMobileViewport()) {
+				resetMouseState();
+			}
+			applyFooterTransform();
+		};
 
-        const entryObserver = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) footerEntered = true;
-                });
-            },
-            { threshold: 0.18, root: scrollContainerEl }
-        );
+		const entryObserver = new IntersectionObserver(
+			(entries) => {
+				entries.forEach((entry) => {
+					if (entry.isIntersecting) footerEntered = true;
+				});
+			},
+			{ threshold: 0.18, root: scrollContainerEl }
+		);
 
-        if (footerWrapEl) entryObserver.observe(footerWrapEl);
+		if (footerWrapEl) entryObserver.observe(footerWrapEl);
 
-        applyFooterTransform();
-        if (scrollContainerEl) {
-            scrollContainerEl.addEventListener("scroll", onScroll, { passive: true });
-        } else {
-            window.addEventListener("scroll", onScroll, { passive: true });
-        }
-        window.addEventListener("resize", onResize);
+		applyFooterTransform();
+		if (scrollContainerEl) {
+			scrollContainerEl.addEventListener('scroll', onScroll, { passive: true });
+		} else {
+			window.addEventListener('scroll', onScroll, { passive: true });
+		}
+		window.addEventListener('resize', onResize);
 
-        return () => {
-            entryObserver.disconnect();
-            if (scrollContainerEl) {
-                scrollContainerEl.removeEventListener("scroll", onScroll);
-            } else {
-                window.removeEventListener("scroll", onScroll);
-            }
-            window.removeEventListener("resize", onResize);
-        };
-    });
+		return () => {
+			entryObserver.disconnect();
+			if (scrollContainerEl) {
+				scrollContainerEl.removeEventListener('scroll', onScroll);
+			} else {
+				window.removeEventListener('scroll', onScroll);
+			}
+			window.removeEventListener('resize', onResize);
+		};
+	});
 
-    onDestroy(() => {
-        if (footerMoveEl) footerMoveEl.style.transform = "";
-    });
+	onDestroy(() => {
+		if (footerMoveEl) footerMoveEl.style.transform = '';
+	});
 </script>
 
-<section id="footer" class="nc-padding-bottom-s nc-bg-black nc-color-blue" {@attach trackFooterSection}>
-    <FooterCta line1="Let's get in touch" line2="Directly email me!" buttonText="Directly email me!" {motionEnabled} />
+<section
+	id="footer"
+	class="nc-padding-bottom-s nc-bg-black nc-color-blue"
+	{@attach trackFooterSection}
+>
+	<FooterCta
+		line1="Let's get in touch"
+		line2="Directly email me!"
+		buttonText="Directly email me!"
+		{motionEnabled}
+	/>
 
-    <div
-        class="footer-ani-wrapper nc-padding-x-m nc-padding-bottom-s"
-        class:is-entered={footerEntered}
-        {@attach trackFooterWrap}
-        role="presentation"
-        onmousemove={handleMouseMove}
-    >
-        <div class="footer-ani" {@attach trackFooterMove}>
-            <div class="nc-padding-y-l footer-main-wrap">
-                <div class="row row-right footer-nav-row">
-                    <div class="col-6 col-12-sm"></div>
+	<div
+		class="footer-ani-wrapper nc-padding-x-m nc-padding-bottom-s"
+		class:is-entered={footerEntered}
+		{@attach trackFooterWrap}
+		role="presentation"
+		onmousemove={handleMouseMove}
+	>
+		<div class="footer-ani" {@attach trackFooterMove}>
+			<div class="nc-padding-y-l footer-main-wrap">
+				<div class="row row-right footer-nav-row">
+					<div class="col-12-sm col-6"></div>
 
-                    <div class="col-6 col-12-sm">
-                        <div class="footer-links row">
-                            <div class="col-4 col-12-sm">
-                                <a
-                                    href={homeHref}
-                                    class="nc-h1 nc-margin-bottom-s footer-link"
-                                    onclick={(e) => handleSectionLinkClick(e, "home")}
-                                    onmouseenter={(e) => scrambleHover(e, "Home")}
-                                ><span class="hover-scramble">Home</span></a><br />
-                                <a
-                                    href={studioHref}
-                                    class="nc-h1 footer-link"
-                                    onclick={(e) => e.preventDefault()}
-                                    onmouseenter={(e) => scrambleHover(e, "Studio")}
-                                ><span class="hover-scramble">Studio</span></a>
-                            </div>
-                            <div class="col-4 col-12-sm">
-                                <a
-                                    href={aboutHref}
-                                    class="nc-h1 nc-margin-bottom-s footer-link"
-                                    onclick={(e) => handleSectionLinkClick(e, "about")}
-                                    onmouseenter={(e) => scrambleHover(e, "About")}
-                                ><span class="hover-scramble">About</span></a><br />
-                                <a
-                                    href={contactHref}
-                                    class="nc-h1 footer-link"
-                                    onclick={(e) => handleSectionLinkClick(e, "contact")}
-                                    onmouseenter={(e) => scrambleHover(e, "Contact")}
-                                ><span class="hover-scramble">Contact</span></a>
-                            </div>
-                            <div class="col-4 col-12-sm">
-                                <a
-                                    class="nc-h1 nc-margin-bottom-s footer-link"
-                                    href={linkedinHref}
-                                    onclick={(e) => e.preventDefault()}
-                                    onmouseenter={(e) => scrambleHover(e, "LinkedIn")}
-                                >
-                                    <div class="link-text"><span class="hover-scramble">LinkedIn</span></div>
-                                </a><br />
-                                <a
-                                    class="nc-h1 footer-link"
-                                    href={notesHref}
-                                    onmouseenter={(e) => scrambleHover(e, "Notes")}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                >
-                                    <div class="link-text"><span class="hover-scramble">Notes</span></div>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+					<div class="col-12-sm col-6">
+						<div class="footer-links row">
+							<div class="col-12-sm col-4">
+								<a
+									href={homeHref}
+									class="nc-h1 nc-margin-bottom-s footer-link"
+									onclick={(e) => handleSectionLinkClick(e, 'home')}
+									onmouseenter={(e) => scrambleHover(e, 'Home')}
+									><span class="hover-scramble">Home</span></a
+								><br />
+								<a
+									href={studioHref}
+									class="nc-h1 footer-link"
+									onclick={(e) => e.preventDefault()}
+									onmouseenter={(e) => scrambleHover(e, 'Studio')}
+									><span class="hover-scramble">Studio</span></a
+								>
+							</div>
+							<div class="col-12-sm col-4">
+								<a
+									href={aboutHref}
+									class="nc-h1 nc-margin-bottom-s footer-link"
+									onclick={(e) => handleSectionLinkClick(e, 'about')}
+									onmouseenter={(e) => scrambleHover(e, 'About')}
+									><span class="hover-scramble">About</span></a
+								><br />
+								<a
+									href={contactHref}
+									class="nc-h1 footer-link"
+									onclick={(e) => handleSectionLinkClick(e, 'contact')}
+									onmouseenter={(e) => scrambleHover(e, 'Contact')}
+									><span class="hover-scramble">Contact</span></a
+								>
+							</div>
+							<div class="col-12-sm col-4">
+								<a
+									class="nc-h1 nc-margin-bottom-s footer-link"
+									href={linkedinHref}
+									onclick={(e) => e.preventDefault()}
+									onmouseenter={(e) => scrambleHover(e, 'LinkedIn')}
+								>
+									<div class="link-text"><span class="hover-scramble">LinkedIn</span></div>
+								</a><br />
+								<a
+									class="nc-h1 footer-link"
+									href={notesHref}
+									onmouseenter={(e) => scrambleHover(e, 'Notes')}
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									<div class="link-text"><span class="hover-scramble">Notes</span></div>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                <div class="footer-brand-row" aria-hidden="true">
-                    <div class="brand-nkd">TJ25</div>
-                    <div class="brand-city-track">
-                        <div class="brand-city-text">Tejas Sahoo</div>
-                    </div>
-                </div>
+				<div class="footer-brand-row" aria-hidden="true">
+					<div class="brand-nkd">TJ25</div>
+					<div class="brand-city-track">
+						<div class="brand-city-text">Tejas Sahoo</div>
+					</div>
+				</div>
 
-                <div class="footer-bottom-line nc-margin-y-s">
-                    <div>
-                        <a href={instagramHref} class="f-bottom-link" onclick={(e) => e.preventDefault()}>Instagram</a>
-                    </div>
-                    <div>
-                        <span class="nc-copy-rights">All Rights Reserved © TJ25 {year}.</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
+				<div class="footer-bottom-line nc-margin-y-s">
+					<div>
+						<a href={instagramHref} class="f-bottom-link" onclick={(e) => e.preventDefault()}
+							>Instagram</a
+						>
+					</div>
+					<div>
+						<span class="nc-copy-rights">All Rights Reserved © TJ25 {year}.</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
 </section>
 
 <style>
-    .nc-bg-black {
-        background: #050516;
-    }
+	.nc-bg-black {
+		background: #050516;
+	}
 
-    .nc-color-blue {
-        color: #0004eb;
-    }
+	.nc-color-blue {
+		color: #0004eb;
+	}
 
-    .nc-h1 {
-        font-family: "Zalando Sans", sans-serif;
-        font-size: 48px;
-        font-weight: 500;
-        letter-spacing: -0.03em;
-        line-height: 110%;
-    }
+	.nc-h1 {
+		font-family: 'Zalando Sans', sans-serif;
+		font-size: var(--font-footer-link);
+		font-weight: 500;
+		letter-spacing: -0.03em;
+		line-height: 110%;
+	}
 
-    @media (max-width: 1024px) {
-        .nc-h1 {
-            font-size: 34px;
-        }
-    }
+	.row {
+		display: grid;
+		grid-template-columns: repeat(12, 1fr);
+		grid-column-gap: 6px;
+	}
 
-    @media (max-width: 769px) {
-        .nc-h1 {
-            font-size: 28px;
-        }
-    }
+	@media (min-width: 768px) {
+		.row {
+			grid-column-gap: 12px;
+		}
+	}
 
-    .row {
-        display: grid;
-        grid-template-columns: repeat(12, 1fr);
-        grid-column-gap: 6px;
-    }
+	.row-right {
+		justify-content: end;
+	}
 
-    @media (min-width: 768px) {
-        .row {
-            grid-column-gap: 12px;
-        }
-    }
+	.col-4 {
+		grid-column: span 4;
+	}
 
-    .row-right {
-        justify-content: end;
-    }
+	.col-6 {
+		grid-column: span 6;
+	}
 
-    .col-4 {
-        grid-column: span 4;
-    }
+	@media (max-width: 768px) {
+		.col-12-sm {
+			grid-column: span 12;
+		}
+	}
 
-    .col-6 {
-        grid-column: span 6;
-    }
+	.nc-padding-x-m {
+		padding-left: 40px;
+		padding-right: 40px;
+	}
 
-    @media (max-width: 768px) {
-        .col-12-sm {
-            grid-column: span 12;
-        }
-    }
+	.nc-padding-bottom-s {
+		padding-bottom: 12px;
+	}
 
-    .nc-padding-x-m {
-        padding-left: 40px;
-        padding-right: 40px;
-    }
+	.nc-padding-y-l {
+		padding-top: 70px;
+		padding-bottom: 70px;
+	}
 
-    .nc-padding-bottom-s {
-        padding-bottom: 12px;
-    }
+	.nc-margin-bottom-s {
+		margin-bottom: 12px;
+	}
 
-    .nc-padding-y-l {
-        padding-top: 70px;
-        padding-bottom: 70px;
-    }
+	.nc-margin-y-s {
+		margin-top: 12px;
+		margin-bottom: 12px;
+	}
 
-    .nc-margin-bottom-s {
-        margin-bottom: 12px;
-    }
+	@media (max-width: 769px) {
+		.nc-padding-x-m {
+			padding-left: 20px;
+			padding-right: 20px;
+		}
 
-    .nc-margin-y-s {
-        margin-top: 12px;
-        margin-bottom: 12px;
-    }
+		.nc-padding-bottom-s {
+			padding-bottom: 6px;
+		}
 
-    @media (max-width: 769px) {
-        .nc-padding-x-m {
-            padding-left: 20px;
-            padding-right: 20px;
-        }
+		.nc-padding-y-l {
+			padding-top: 35px;
+			padding-bottom: 35px;
+		}
 
-        .nc-padding-bottom-s {
-            padding-bottom: 6px;
-        }
+		.nc-margin-bottom-s {
+			margin-bottom: 6px;
+		}
 
-        .nc-padding-y-l {
-            padding-top: 35px;
-            padding-bottom: 35px;
-        }
+		.nc-margin-y-s {
+			margin-top: 6px;
+			margin-bottom: 6px;
+		}
+	}
 
-        .nc-margin-bottom-s {
-            margin-bottom: 6px;
-        }
+	.footer-ani-wrapper {
+		overflow: visible;
+		opacity: 0;
+		transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1);
+	}
 
-        .nc-margin-y-s {
-            margin-top: 6px;
-            margin-bottom: 6px;
-        }
-    }
+	.footer-ani-wrapper.is-entered {
+		opacity: 1;
+	}
 
-    .footer-ani-wrapper {
-        overflow: visible;
-        opacity: 0;
-        transition: opacity 0.95s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+	.footer-ani {
+		transition: transform 0.1s linear;
+		will-change: transform;
+	}
 
-    .footer-ani-wrapper.is-entered {
-        opacity: 1;
-    }
+	.footer-main-wrap {
+		min-height: 350px;
+	}
 
-    .footer-ani {
-        transition: transform 0.1s linear;
-        will-change: transform;
-    }
+	.footer-nav-row {
+		margin-bottom: 42px;
+	}
 
-    .footer-main-wrap {
-        min-height: 350px;
-    }
+	.footer-brand-row {
+		align-items: stretch;
+		display: flex;
+		margin-bottom: 16px;
+		width: 100%;
+	}
 
-    .footer-nav-row {
-        margin-bottom: 42px;
-    }
+	.brand-nkd {
+		color: #0004eb;
+		font-family: 'Zalando Sans', sans-serif;
+		font-size: var(--font-footer-brand);
+		font-weight: 700;
+		letter-spacing: -0.04em;
+		line-height: 0.68;
+		margin-right: 18px;
+	}
 
-    .footer-brand-row {
-        align-items: stretch;
-        display: flex;
-        margin-bottom: 16px;
-        width: 100%;
-    }
+	.brand-city-track {
+		align-items: center;
+		background: #0004eb;
+		display: flex;
+		flex: 1;
+		justify-content: flex-end;
+		min-height: 130px;
+		padding-right: 22px;
+	}
 
-    .brand-nkd {
-        color: #0004eb;
-        font-family: "Zalando Sans", sans-serif;
-        font-size: clamp(120px, 14vw, 190px);
-        font-weight: 700;
-        letter-spacing: -0.04em;
-        line-height: 0.68;
-        margin-right: 18px;
-    }
+	.brand-city-text {
+		color: #050516;
+		font-family: 'Zalando Sans', sans-serif;
+		font-size: var(--font-footer-city);
+		font-weight: 700;
+		letter-spacing: -0.03em;
+		line-height: 0.9;
+	}
 
-    .brand-city-track {
-        align-items: center;
-        background: #0004eb;
-        display: flex;
-        flex: 1;
-        justify-content: flex-end;
-        min-height: 130px;
-        padding-right: 22px;
-    }
+	.footer-links {
+		border-bottom: 1px solid transparent;
+	}
 
-    .brand-city-text {
-        color: #050516;
-        font-family: "Zalando Sans", sans-serif;
-        font-size: clamp(48px, 5.5vw, 70px);
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        line-height: 0.9;
-    }
+	@media (max-width: 769px) {
+		.footer-links {
+			border-bottom: 1px solid #0004eb;
+			margin-bottom: 20px;
+			padding-bottom: 5px;
+		}
+	}
 
-    .footer-links {
-        border-bottom: 1px solid transparent;
-    }
+	.footer-link {
+		border-bottom: 1px solid transparent;
+		display: inline-block;
+		position: relative;
+		text-decoration: none;
+		transition:
+			color 0.35s ease,
+			border-bottom-color 0.35s ease;
+		color: #0004eb;
+	}
 
-    @media (max-width: 769px) {
-        .footer-links {
-            border-bottom: 1px solid #0004eb;
-            margin-bottom: 20px;
-            padding-bottom: 5px;
-        }
-    }
+	.footer-link:hover {
+		border-bottom-color: currentColor;
+		color: #979797;
+	}
 
-    .footer-link {
-        border-bottom: 1px solid transparent;
-        display: inline-block;
-        position: relative;
-        text-decoration: none;
-        transition: color 0.35s ease, border-bottom-color 0.35s ease;
-        color: #0004eb;
-    }
+	@media (max-width: 769px) {
+		.footer-link {
+			margin-bottom: 15px;
+		}
+	}
 
-    .footer-link:hover {
-        border-bottom-color: currentColor;
-        color: #979797;
-    }
+	.link-text {
+		display: inline-block;
+		position: relative;
+	}
 
-    @media (max-width: 769px) {
-        .footer-link {
-            margin-bottom: 15px;
-        }
-    }
+	.hover-scramble {
+		display: inline-block;
+	}
 
-    .link-text {
-        display: inline-block;
-        position: relative;
-    }
+	.footer-bottom-line {
+		display: flex;
+		justify-content: space-between;
+		font-family: 'Zalando Sans', sans-serif;
+		font-size: var(--font-footer-meta);
+		letter-spacing: -0.01em;
+		line-height: 1;
+	}
 
-    .hover-scramble {
-        display: inline-block;
-    }
+	.f-bottom-link,
+	.nc-copy-rights {
+		font-size: var(--font-footer-meta);
+		color: #0004eb;
+	}
 
-    .footer-bottom-line {
-        display: flex;
-        justify-content: space-between;
-        font-family: "Zalando Sans", sans-serif;
-        font-size: 28px;
-        letter-spacing: -0.01em;
-        line-height: 1;
-    }
+	.f-bottom-link {
+		border-bottom: 1px solid transparent;
+		text-decoration: none;
+		transition:
+			border-bottom-color 0.35s ease,
+			color 0.35s ease;
+	}
 
-    .f-bottom-link,
-    .nc-copy-rights {
-        font-size: 24px;
-        color: #0004eb;
-    }
+	.f-bottom-link:hover {
+		border-bottom-color: currentColor;
+		color: #979797;
+	}
 
-    .f-bottom-link {
-        border-bottom: 1px solid transparent;
-        text-decoration: none;
-        transition: border-bottom-color 0.35s ease, color 0.35s ease;
-    }
+	@media (max-width: 769px) {
+		.footer-main-wrap {
+			min-height: auto;
+		}
 
-    .f-bottom-link:hover {
-        border-bottom-color: currentColor;
-        color: #979797;
-    }
+		.footer-nav-row {
+			margin-bottom: 16px;
+		}
 
-    @media (max-width: 769px) {
-        .footer-main-wrap {
-            min-height: auto;
-        }
+		.footer-brand-row {
+			align-items: flex-start;
+			flex-direction: column;
+			gap: 12px;
+		}
 
-        .footer-nav-row {
-            margin-bottom: 16px;
-        }
+		.brand-nkd {
+			line-height: 0.7;
+			margin-right: 0;
+		}
 
-        .footer-brand-row {
-            align-items: flex-start;
-            flex-direction: column;
-            gap: 12px;
-        }
+		.brand-city-track {
+			min-height: 96px;
+			width: 100%;
+		}
 
-        .brand-nkd {
-            font-size: clamp(100px, 26vw, 150px);
-            line-height: 0.7;
-            margin-right: 0;
-        }
+		.footer-bottom-line {
+			border-bottom: 1px solid #0004eb;
+			flex-direction: column;
+			gap: 8px;
+			padding-bottom: 12px;
+			width: 100%;
+		}
 
-        .brand-city-track {
-            min-height: 96px;
-            width: 100%;
-        }
-
-        .brand-city-text {
-            font-size: clamp(42px, 11vw, 62px);
-        }
-
-        .footer-bottom-line {
-            border-bottom: 1px solid #0004eb;
-            flex-direction: column;
-            font-size: 14px;
-            gap: 8px;
-            padding-bottom: 12px;
-            width: 100%;
-        }
-
-        .f-bottom-link,
-        .nc-copy-rights {
-            font-size: 14px;
-        }
-
-        .f-bottom-link,
-        .nc-copy-rights {
-            display: block;
-            padding: 4px 0;
-        }
-    }
+		.f-bottom-link,
+		.nc-copy-rights {
+			display: block;
+			padding: 4px 0;
+		}
+	}
 </style>

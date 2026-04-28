@@ -79,8 +79,6 @@
 	$effect(() => {
 		if (!visible || !isMobile) return;
 
-		startDeviceTilt();
-
 		if (!deviceTiltState.permissionGranted) {
 			tilts = Array.from({ length: PAGE_SIZE }, () => ({ rx: 0, ry: 0, hovering: false }));
 			return;
@@ -271,7 +269,7 @@
 	}
 
 	.section-label {
-		font-size: 28px;
+		font-size: var(--font-panel-label);
 		color: var(--color-blue);
 		margin: 0;
 		letter-spacing: 0.02em;
@@ -384,7 +382,7 @@
 	}
 
 	.card-title {
-		font-size: 20px;
+		font-size: var(--font-project-title);
 		font-weight: 400;
 		color: var(--color-blue);
 		line-height: 1;
@@ -396,7 +394,7 @@
 
 	.card-desc {
 		font-family: 'Inter Variable', sans-serif;
-		font-size: 12.5px;
+		font-size: var(--font-project-copy);
 		font-weight: 300;
 		color: rgba(25, 0, 255, 0.52);
 		line-height: 1.5;
@@ -414,10 +412,6 @@
 
 		.header-row {
 			margin-bottom: 0.85rem;
-		}
-
-		.section-label {
-			font-size: clamp(21px, 5.8vw, 25px);
 		}
 
 		.grid-viewport {
@@ -460,12 +454,10 @@
 		}
 
 		.card-title {
-			font-size: clamp(20px, 6vw, 25px);
 			line-height: 0.95;
 		}
 
 		.card-desc {
-			font-size: 13px;
 			line-height: 1.42;
 		}
 	}

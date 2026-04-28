@@ -66,7 +66,6 @@
 		}
 
 		if (isMobile) {
-			startDeviceTilt();
 			mouseX = tilt.permissionGranted ? tilt.x : 0;
 			mouseY = tilt.permissionGranted ? tilt.y : 0;
 			return;

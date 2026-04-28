@@ -248,9 +248,9 @@
 		{ id: 'footer', label: 'Footer', count: 17 }
 	];
 
-	function handleContainerScroll(event: Event) {
-		const container = event.currentTarget as HTMLDivElement;
-		const scrollPercentage = container.scrollTop / window.innerHeight;
+	function updateSlideFromContainer(container: HTMLDivElement) {
+		const slideHeight = container.clientHeight || window.innerHeight;
+		const scrollPercentage = container.scrollTop / slideHeight;
 		const newSlide = Math.round(scrollPercentage);
 
 		if (newSlide === currentSlide) return;
@@ -262,6 +262,20 @@
 		if (nextSection) {
 			activeSection = nextSection.id;
 		}
+	}
+
+	function trackContainerScroll(container: HTMLDivElement) {
+		const handleScroll = () => updateSlideFromContainer(container);
+		const frame = requestAnimationFrame(handleScroll);
+
+		container.addEventListener('scroll', handleScroll, { passive: true });
+
+		return {
+			destroy() {
+				cancelAnimationFrame(frame);
+				container.removeEventListener('scroll', handleScroll);
+			}
+		};
 	}
 </script>
 
@@ -294,7 +308,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 1 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue);"
 			>
 				{#each aboutTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -322,7 +336,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 3 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue);"
 			>
 				{#each experienceTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -350,7 +364,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 7 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue);"
 			>
 				{#each educationTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -398,7 +412,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 10 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue); position: relative;"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue); position: relative;"
 			>
 				{#each expertiseTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -426,7 +440,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 12 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue);"
 			>
 				{#each projectsTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -454,7 +468,7 @@
 			<h1
 				class="mondwest animated-section-title"
 				class:intro-active={currentSlide === 14 && previousSlide < currentSlide}
-				style="font-size: 96px; line-height: 1; margin: 0; color: var(--color-blue);"
+				style="font-size: var(--font-section-title); line-height: 1; margin: 0; color: var(--color-blue);"
 			>
 				{#each contactTitleChars as char, i (i)}
 					<span class="intro-char" style="--char-index: {i};">{char === ' ' ? '\u00A0' : char}</span
@@ -464,7 +478,7 @@
 		</div>
 	{/if}
 
-	<div class="snap-container" onscroll={handleContainerScroll} in:fade={{ duration: 1850 }}>
+	<div use:trackContainerScroll class="snap-container" in:fade={{ duration: 1850 }}>
 		<!-- Slide 0: Home/Landing -->
 		<section id="home" class="snap-section">
 			<ScrollParallax layers={parallaxLayers} maxShift={80} enabled={currentSlide === 0} />
@@ -679,7 +693,7 @@
 	.contact-card-heading {
 		margin: 0;
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 54px;
+		font-size: var(--font-contact-heading);
 		line-height: 1.04;
 		letter-spacing: -0.02em;
 		font-weight: 600;
@@ -811,7 +825,7 @@
 	.contact-card-copy {
 		margin: 0.52rem 0 0;
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 26px;
+		font-size: var(--font-contact-copy);
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 	}
@@ -819,7 +833,7 @@
 	.contact-card-meta {
 		margin: 0.5rem 0 0;
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 26px;
+		font-size: var(--font-contact-copy);
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 	}
@@ -829,7 +843,7 @@
 		margin-top: 0.2rem;
 		color: var(--color-blue);
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 26px;
+		font-size: var(--font-contact-copy);
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 		text-decoration: none;
@@ -856,7 +870,7 @@
 	.contact-rotate-line {
 		margin: 0;
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 26px;
+		font-size: var(--font-contact-copy);
 		line-height: 1.15;
 		letter-spacing: -0.01em;
 		color: rgba(25, 0, 255, 0.88);
@@ -890,7 +904,7 @@
 		font-family: 'PP Mondwest', serif;
 		font-style: italic;
 		font-weight: 400;
-		font-size: 26px;
+		font-size: var(--font-contact-copy);
 		line-height: 1.15;
 		left: 0;
 		transition: background-size 0.35s ease;
@@ -906,7 +920,17 @@
 
 	.animated-section-title {
 		display: inline-flex;
+		font-size: var(--font-section-title) !important;
 		white-space: nowrap;
+	}
+
+	.fixed-csstack-title .animated-section-title,
+	.fixed-contact-title .animated-section-title {
+		font-size: var(--font-section-title-long) !important;
+	}
+
+	.fixed-contact-title .animated-section-title {
+		font-size: var(--font-section-title-contact) !important;
 	}
 
 	.intro-char {
@@ -944,20 +968,20 @@
 			flex-wrap: wrap;
 			max-width: 100%;
 			white-space: normal;
-			font-size: clamp(42px, 13vw, 56px) !important;
+			font-size: var(--font-section-title) !important;
 			line-height: 0.86 !important;
 		}
 
 		.fixed-contact-title .animated-section-title,
 		.fixed-csstack-title .animated-section-title {
-			font-size: clamp(34px, 10.8vw, 48px) !important;
+			font-size: var(--font-section-title-long) !important;
 			line-height: 0.9 !important;
 		}
 
 		.fixed-contact-title .animated-section-title {
 			flex-wrap: nowrap;
 			white-space: nowrap;
-			font-size: clamp(28px, 8.5vw, 34px) !important;
+			font-size: var(--font-section-title-contact) !important;
 		}
 
 		.fixed-csstack-title > div {
@@ -994,7 +1018,7 @@
 		}
 
 		.contact-card-heading {
-			font-size: 34px;
+			font-size: var(--font-contact-heading);
 			white-space: normal;
 		}
 
@@ -1002,11 +1026,11 @@
 		.contact-card-meta,
 		.contact-card-email,
 		.contact-rotate-line {
-			font-size: 20px;
+			font-size: var(--font-contact-copy);
 		}
 
 		.contact-rotate-ani {
-			font-size: 20px;
+			font-size: var(--font-contact-copy);
 		}
 
 		.contact-rotate-slot {

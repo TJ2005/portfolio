@@ -185,7 +185,7 @@
 
 	.nc-hxl {
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 68px;
+		font-size: var(--font-footer-cta);
 		font-weight: 500;
 		letter-spacing: -0.03em;
 		line-height: 110%;
@@ -193,31 +193,18 @@
 		color: #0004eb;
 	}
 
-	@media (max-width: 1024px) {
-		.nc-hxl {
-			font-size: 54px;
-		}
-	}
-
 	@media (max-width: 769px) {
 		.nc-hxl {
-			font-size: clamp(38px, 11vw, 44px);
 			line-height: 1.04;
 		}
 	}
 
 	.nc-h3 {
 		font-family: 'Zalando Sans', sans-serif;
-		font-size: 18px;
+		font-size: var(--font-footer-copy);
 		font-weight: 500;
 		letter-spacing: -0.01em;
 		line-height: 120%;
-	}
-
-	@media (max-width: 769px) {
-		.nc-h3 {
-			font-size: 16px;
-		}
 	}
 
 	.nc-italic {
