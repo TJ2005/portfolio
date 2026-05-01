@@ -998,25 +998,49 @@
 		}
 
 		.fixed-csstack-title > div {
-			right: -0.5rem !important;
-			width: calc(100% + 5rem) !important;
-			height: calc(100% + 2.25rem) !important;
+			right: -1rem !important;
+			width: calc(100% + 10rem) !important;
+			height: calc(100% + 4rem) !important;
 			backdrop-filter: blur(18px) !important;
 			-webkit-backdrop-filter: blur(18px) !important;
-			mask-image: linear-gradient(
-				to left,
-				rgba(0, 0, 0, 0.92) 0%,
-				rgba(0, 0, 0, 0.72) 42%,
-				transparent 100%
-			) !important;
-			-webkit-mask-image: linear-gradient(
-				to left,
-				rgba(0, 0, 0, 0.92) 0%,
-				rgba(0, 0, 0, 0.72) 42%,
-				transparent 100%
-			) !important;
-			mask-composite: add !important;
-			-webkit-mask-composite: source-over !important;
+			mask-image:
+				linear-gradient(
+					to left,
+					rgba(0, 0, 0, 1) 0%,
+					rgba(0, 0, 0, 0.78) 26%,
+					rgba(0, 0, 0, 0.42) 64%,
+					rgba(0, 0, 0, 0.12) 84%,
+					transparent 100%
+				),
+				linear-gradient(
+					to bottom,
+					transparent 0%,
+					rgba(0, 0, 0, 0.28) 18%,
+					rgba(0, 0, 0, 0.92) 40%,
+					rgba(0, 0, 0, 0.92) 60%,
+					rgba(0, 0, 0, 0.28) 82%,
+					transparent 100%
+				) !important;
+			-webkit-mask-image:
+				linear-gradient(
+					to left,
+					rgba(0, 0, 0, 1) 0%,
+					rgba(0, 0, 0, 0.78) 26%,
+					rgba(0, 0, 0, 0.42) 64%,
+					rgba(0, 0, 0, 0.12) 84%,
+					transparent 100%
+				),
+				linear-gradient(
+					to bottom,
+					transparent 0%,
+					rgba(0, 0, 0, 0.28) 18%,
+					rgba(0, 0, 0, 0.92) 40%,
+					rgba(0, 0, 0, 0.92) 60%,
+					rgba(0, 0, 0, 0.28) 82%,
+					transparent 100%
+				) !important;
+			mask-composite: intersect !important;
+			-webkit-mask-composite: source-in !important;
 		}
 
 		.experience-content,
