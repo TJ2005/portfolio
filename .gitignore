@@ -1,6 +1,10 @@
 test-results
 node_modules
 
+# This project uses pnpm — don't let npm/yarn lockfiles sneak in
+package-lock.json
+yarn.lock
+
 # Output
 .output
 .vercel
