@@ -13,6 +13,13 @@ node_modules
 .DS_Store
 Thumbs.db
 
+# Audit/debug artifacts
+mobile-audit/
+mobile-audit-after/
+mobile-audit-*.png
+dev-server.out.log
+dev-server.err.log
+
 # Env
 .env
 .env.*
